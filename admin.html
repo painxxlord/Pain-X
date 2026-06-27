@@ -2,31 +2,36 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>PainX Admin</title>
-    <style>body { background: #000; color: white; padding: 20px; }</style>
+    <title>Admin Control</title>
+    <style>
+        body { background: #000; color: white; padding: 20px; font-family: sans-serif; }
+        .user-card { background: #222; padding: 15px; margin-bottom: 10px; border-left: 4px solid #cc0000; }
+        .red-badge { color: white; background: #cc0000; border-radius: 50%; padding: 2px 8px; font-weight: bold; }
+    </style>
 </head>
 <body>
     <h1>Admin Panel</h1>
-    <div id="manageUsers"></div>
+    <div id="userList"></div>
 
     <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
         import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
-        const db = getDatabase();
+
+        const db = getDatabase(initializeApp({ /* ADD SAME CONFIG HERE */ }));
 
         onValue(ref(db, 'users'), (snap) => {
-            const container = document.getElementById('manageUsers');
-            container.innerHTML = "";
+            const list = document.getElementById('userList');
+            list.innerHTML = "";
             snap.forEach((user) => {
-                const data = user.val();
-                container.innerHTML += `
-                    <div>
-                        ${data.fname} ${data.lname} - Followers: ${data.followers}
-                        ${data.followers >= 1000 ? '<span class="red-badge">✔</span>' : ''}
-                        <button onclick="verify('${user.key}')">Grant Verification</button>
+                const u = user.val();
+                list.innerHTML += `
+                    <div class="user-card">
+                        ${u.name} - Followers: ${u.followers} 
+                        ${u.verified ? '<span class="red-badge">✔</span>' : ''}
+                        <button onclick="verify('${user.key}')">Verify User</button>
                     </div>`;
             });
         });
-
         window.verify = (uid) => update(ref(db, 'users/' + uid), { verified: true });
     </script>
 </body>
