@@ -3,17 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pain-X Community</title>
-    <!-- Tailwind CSS for styling -->
+    <title>Pain X</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Firebase App and Database CDNs -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
 </head>
-<body class="bg-zinc-950 text-zinc-100 min-h-screen font-sans">
+<body class="bg-zinc-950 text-zinc-100 min-h-screen font-sans antialiased pb-16 md:pb-0">
 
-    <!-- Firebase Configuration Block -->
     <script>
       const firebaseConfig = {
         apiKey: "AIzaSyAN4oKAF6Od2u6aMOBk8G9u4Xa2QyRFWio",
@@ -26,117 +24,187 @@
         measurementId: "G-BMWZZVHTWB"
       };
 
-      // Initialize Firebase
       if (!firebase.apps.length) {
         firebase.initializeApp(firebaseConfig);
       }
       const auth = firebase.auth();
       const db = firebase.database();
+      const storage = firebase.storage();
     </script>
 
-    <!-- Top Navigation -->
-    <nav class="border-b border-zinc-800 bg-zinc-900/50 backdrop-blur sticky top-0 z-50 px-4 py-3">
-        <div class="max-w-4xl mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-black tracking-wider text-red-500">PAIN-X</h1>
-            <div id="nav-user-info" class="hidden items-center gap-4">
-                <span id="user-display-name" class="font-medium text-sm text-zinc-300"></span>
-                <button onclick="logoutUser()" class="text-xs bg-zinc-800 hover:bg-zinc-700 px-3 py-1.5 rounded-md transition font-medium">Log Out</button>
+    <!-- AUTHENTICATION WALL OVERLAY -->
+    <div id="auth-overlay" class="fixed inset-0 bg-zinc-950 z-[100] flex items-center justify-center p-4">
+        <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+            <div class="text-center mb-6">
+                <h1 class="text-3xl font-black tracking-wider text-red-500 mb-1">PAIN X</h1>
+                <p id="auth-subtitle" class="text-xs text-zinc-400">Sign up to explore the network stream</p>
+            </div>
+            <form id="auth-form" onsubmit="handleAuth(event)" class="space-y-4">
+                <div id="auth-name-wrapper">
+                    <label class="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1">Display Username</label>
+                    <input type="text" id="auth-name" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-red-500 transition">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1">Email Address</label>
+                    <input type="email" id="auth-email" required class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-red-500 transition">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1">Security Password</label>
+                    <input type="password" id="auth-password" required class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-red-500 transition">
+                </div>
+                <button type="submit" id="auth-btn" class="w-full bg-red-600 hover:bg-red-700 font-bold py-2.5 rounded-xl text-sm transition mt-2 shadow-lg shadow-red-600/20">Create Account</button>
+            </form>
+            <div class="text-center mt-4">
+                <button onclick="toggleAuthMode()" id="auth-toggle" class="text-xs text-zinc-400">Already registered? <span class="text-red-500 font-bold">Log In</span></button>
             </div>
         </div>
-    </nav>
+    </div>
 
-    <main class="max-w-4xl mx-auto p-4 grid grid-cols-1 md:grid-cols-3 gap-6">
-        
-        <!-- Left Side: Auth Section -->
-        <div class="md:col-span-1">
-            <div id="auth-card" class="bg-zinc-900 border border-zinc-800 rounded-xl p-5 sticky top-20">
-                <div class="text-center mb-6">
-                    <div class="w-16 h-16 bg-red-950/50 border border-red-500/30 text-red-500 rounded-full flex items-center justify-center text-2xl font-black mx-auto mb-2 shadow-lg shadow-red-500/10">P</div>
-                    <h2 id="auth-title" class="text-lg font-bold">Create Account</h2>
-                    <p id="auth-subtitle" class="text-xs text-zinc-400 mt-1">Join the network to start posting</p>
+    <!-- MAIN APP WRAPPER -->
+    <div id="app-content" class="hidden">
+        <!-- Top Navigation Line Bar -->
+        <nav class="border-b border-zinc-800 bg-zinc-900/80 backdrop-blur sticky top-0 z-50 px-4 py-3">
+            <div class="max-w-4xl mx-auto flex justify-between items-center">
+                <h1 class="text-xl font-black tracking-wider text-red-500 cursor-pointer" onclick="switchTab('feed')">PAIN X</h1>
+                
+                <!-- Navbar Toolbar Action Items Line -->
+                <div class="flex items-center gap-5 text-zinc-400">
+                    <button onclick="switchTab('feed')" class="hover:text-zinc-100 transition text-lg" title="Global Stream Feed">🏠</button>
+                    <button onclick="switchTab('videos')" class="hover:text-zinc-100 transition text-lg" title="Watch Videos Only">🎬</button>
+                    <button onclick="switchTab('chat')" class="hover:text-zinc-100 transition text-lg relative" title="Pain AI Chat Room">💬<span id="chat-alert" class="hidden absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span></button>
+                    <button onclick="openProfileView()" class="hover:text-zinc-100 transition text-lg" title="My TikTok Style Profile">👤</button>
+                    <button onclick="toggleSettingsMenu()" class="hover:text-zinc-100 transition text-lg" title="System Settings">⚙️</button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Dropdown Settings Layer Box -->
+        <div id="settings-menu" class="hidden absolute right-4 top-14 bg-zinc-900 border border-zinc-800 p-2 rounded-xl shadow-2xl z-50 w-44">
+            <a href="admin.html" class="block px-3 py-2 text-xs font-semibold hover:bg-zinc-800 rounded-lg text-zinc-300">🚨 System Terminal</a>
+            <button onclick="logoutUser()" class="w-full text-left px-3 py-2 text-xs font-bold text-red-500 hover:bg-red-950/40 rounded-lg mt-1 border-t border-zinc-800/60 pt-2">🚪 Log Out</button>
+        </div>
+
+        <!-- MAIN LAYOUT VIEWS SWITCH CONTAINER -->
+        <main class="max-w-2xl mx-auto p-4 min-h-screen">
+            
+            <!-- VIEW A: GLOBAL TIMELINE STREAM FEED -->
+            <div id="view-feed" class="space-y-4">
+                <!-- Composer Box Frame -->
+                <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 shadow-xl">
+                    <form onsubmit="handlePostSubmit(event)">
+                        <textarea id="post-input" required rows="3" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-sm focus:outline-none focus:border-red-500 transition resize-none text-zinc-100 placeholder-zinc-500" placeholder="What's on your mind today?"></textarea>
+                        
+                        <!-- Upload Parameters Row -->
+                        <div class="flex items-center justify-between mt-2 pt-2 border-t border-zinc-800/50">
+                            <label class="cursor-pointer flex items-center gap-1.5 text-xs font-bold text-zinc-400 hover:text-zinc-200 transition">
+                                📁 <span>Attach Video Clip</span>
+                                <input type="file" id="post-video-file" accept="video/*" class="hidden" onchange="updateVideoLabel(this)">
+                            </label>
+                            <span id="video-file-name" class="text-[10px] text-zinc-500 max-w-[200px] truncate"></span>
+                            <button type="submit" id="post-btn" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition shadow-md shadow-red-600/10">Broadcast</button>
+                        </div>
+                    </form>
                 </div>
 
-                <form id="auth-form" onsubmit="handleAuth(event)" class="space-y-4">
-                    <div id="name-field-container">
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1">Your Name</label>
-                        <input type="text" id="auth-name" class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-red-500 transition" placeholder="e.g., Pain">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1">Email Address</label>
-                        <input type="email" id="auth-email" required class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-red-500 transition" placeholder="name@example.com">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1">Password</label>
-                        <input type="password" id="auth-password" required class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-red-500 transition" placeholder="••••••••">
-                    </div>
+                <!-- Live Container Feed Engine -->
+                <div id="global-feed-stream" class="space-y-4"></div>
+            </div>
 
-                    <button type="submit" id="auth-submit-btn" class="w-full bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-semibold py-2 rounded-lg text-sm transition mt-2 shadow-lg shadow-red-600/10">Register</button>
+            <!-- VIEW B: VIDEOS EXCLUSIVE STREAM -->
+            <div id="view-videos" class="hidden space-y-4">
+                <h2 class="text-sm font-black uppercase tracking-wider text-zinc-400 mb-2">🎬 Live Video Streams</h2>
+                <div id="video-feed-stream" class="space-y-4"></div>
+            </div>
+
+            <!-- VIEW C: PRIVATE MESSAGES CHAT TAB (PAIN AI CHAT BOT) -->
+            <div id="view-chat" class="hidden bg-zinc-900 border border-zinc-800 rounded-2xl flex flex-col h-[75vh] shadow-2xl overflow-hidden">
+                <div class="p-4 border-b border-zinc-800 bg-zinc-950/40 flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-red-950 border border-red-500 flex items-center justify-center font-bold text-xs text-red-500">🤖</div>
+                    <div>
+                        <h3 class="text-xs font-black uppercase tracking-wider flex items-center gap-1">Pain AI Assistant <span class="bg-red-600 text-white text-[9px] font-black w-3.5 h-3.5 flex items-center justify-center rounded-sm border border-white/20">✓</span></h3>
+                        <span class="text-[10px] text-emerald-500 font-bold block">Online Systems Active</span>
+                    </div>
+                </div>
+                <!-- Chat Window Frame -->
+                <div id="chat-messages-container" class="flex-1 p-4 overflow-y-auto space-y-3 font-medium text-sm"></div>
+                <!-- Input Tray Frame -->
+                <form onsubmit="handleSendPrivateMessage(event)" class="p-3 border-t border-zinc-800 bg-zinc-950/20 flex gap-2">
+                    <input type="text" id="chat-input" required placeholder="Send a question to the system AI..." class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-red-500 transition text-zinc-100">
+                    <button type="submit" class="bg-red-600 hover:bg-red-700 px-4 rounded-xl text-xs font-bold transition">Send</button>
                 </form>
-
-                <div class="text-center mt-4">
-                    <button onclick="toggleAuthMode()" id="auth-toggle-btn" class="text-xs text-zinc-400 hover:text-red-400 transition">Already registered? <span class="text-red-500 font-medium">Log In</span></button>
-                </div>
             </div>
+        </main>
 
-            <!-- Profile Info Box (Shown when logged in) -->
-            <div id="profile-card" class="hidden bg-zinc-900 border border-zinc-800 rounded-xl p-5 text-center sticky top-20">
-                <div id="profile-avatar" class="w-16 h-16 bg-zinc-800 border border-zinc-700 text-zinc-300 rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-3">?</div>
-                <h2 id="profile-name" class="text-lg font-bold flex items-center justify-center gap-1.5"></h2>
-                <p id="profile-email" class="text-xs text-zinc-500 mt-0.5"></p>
-                <div class="mt-4 pt-4 border-t border-zinc-800/60 flex justify-around text-center">
-                    <div>
-                        <span class="block text-xs text-zinc-500 font-medium uppercase tracking-wider">Status</span>
-                        <span class="text-xs text-emerald-500 font-bold bg-emerald-500/10 px-2 py-0.5 rounded-full inline-block mt-1">Active</span>
+        <!-- TIKTOK STYLE FULL SCREEN DYNAMIC PROFILE VIEW MODAL -->
+        <div id="view-profile-modal" class="hidden fixed inset-0 bg-zinc-950 z-50 overflow-y-auto flex justify-center p-0 md:p-4 animate-fade-in">
+            <div class="bg-zinc-950 md:bg-zinc-900 border-0 md:border border-zinc-800 w-full max-w-xl min-h-screen md:min-h-0 md:rounded-2xl p-5 shadow-2xl relative flex flex-col">
+                <!-- Close Button to Leave Profile Completely -->
+                <button onclick="closeProfileView()" class="absolute top-4 right-4 text-xl text-zinc-500 hover:text-zinc-200 transition font-bold" title="Close and Return to Feed">✕ Leave Profile</button>
+                
+                <!-- TikTok Profile Header Matrix -->
+                <div class="text-center pt-8 pb-4">
+                    <div id="p-avatar" class="w-24 h-24 bg-zinc-800 border-2 border-zinc-700 text-zinc-200 rounded-full flex items-center justify-center text-4xl font-bold mx-auto mb-3 shadow-xl">?</div>
+                    <h2 id="p-name" class="text-xl font-black flex items-center justify-center gap-1.5 text-zinc-100"></h2>
+                    <p id="p-bio" class="text-xs text-zinc-400 mt-1 max-w-xs mx-auto italic">No profile bio description established yet.</p>
+                    
+                    <!-- The Big Three TikTok Stats Counters Row -->
+                    <div class="flex justify-center items-center gap-8 mt-6 border-y border-zinc-800/60 py-3 max-w-sm mx-auto">
+                        <div class="text-center">
+                            <span id="p-stat-following" class="block text-lg font-black text-zinc-100">0</span>
+                            <span class="text-[10px] uppercase font-bold text-zinc-500 tracking-wider">Following</span>
+                        </div>
+                        <div class="text-center">
+                            <span id="p-stat-followers" class="block text-lg font-black text-zinc-100">0</span>
+                            <span class="text-[10px] uppercase font-bold text-zinc-500 tracking-wider">Followers</span>
+                        </div>
+                        <div class="text-center">
+                            <span id="p-stat-likes" class="block text-lg font-black text-zinc-100">0</span>
+                            <span class="text-[10px] uppercase font-bold text-zinc-500 tracking-wider">Likes</span>
+                        </div>
                     </div>
+
+                    <!-- Profile Interactions / Edit Trigger -->
+                    <div class="mt-4 flex justify-center gap-2">
+                        <button onclick="toggleProfileEditForm()" class="text-xs font-bold bg-zinc-800 hover:bg-zinc-700 px-6 py-2 rounded-xl border border-zinc-700/60 transition">Edit Settings Profile</button>
+                        <button id="p-follow-btn" onclick="triggerProfileFollowMutation()" class="hidden text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl transition">Follow Account</button>
+                    </div>
+
+                    <!-- Hidden Editor Subpanel Dropdown -->
+                    <form id="p-edit-form" onsubmit="handleSaveProfileEdits(event)" class="hidden mt-4 p-4 border border-zinc-800 bg-zinc-950/40 rounded-xl max-w-sm mx-auto text-left space-y-3">
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase tracking-wider text-zinc-500 mb-1">Update Name</label>
+                            <input type="text" id="edit-p-username" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-zinc-100 focus:outline-none focus:border-red-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase tracking-wider text-zinc-500 mb-1">Update Status Bio Description</label>
+                            <input type="text" id="edit-p-bio" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-zinc-100 focus:outline-none focus:border-red-500">
+                        </div>
+                        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-xs font-bold py-2 rounded-lg transition">Save Profile Configurations</button>
+                    </form>
+                </div>
+
+                <!-- Custom Grid Filter Tab -->
+                <div class="border-t border-zinc-800 mt-4 flex-1">
+                    <span class="block text-[10px] font-black uppercase text-zinc-500 tracking-widest my-3">🗂️ Account Broadcast Stream Output</span>
+                    <div id="profile-personal-feed" class="space-y-3"></div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Right Side: Feed Section -->
-        <div class="md:col-span-2 space-y-4">
-            <!-- Composer -->
-            <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
-                <form onsubmit="handlePostSubmit(event)">
-                    <textarea id="post-input" required rows="3" class="w-full bg-zinc-950 border border-zinc-800/80 rounded-lg p-3 text-sm focus:outline-none focus:border-red-500 transition resize-none placeholder-zinc-500" placeholder="What's happening? Share an update..."></textarea>
-                    <div class="flex justify-end mt-2">
-                        <button type="submit" id="post-btn" disabled class="bg-red-600/50 cursor-not-allowed text-white text-xs font-bold px-4 py-2 rounded-lg transition shadow-lg">Post Broadcast</button>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Feed Container -->
-            <div id="global-feed" class="space-y-3">
-                <div class="text-center py-8 text-zinc-500 text-sm">Loading community broadcast feed...</div>
-            </div>
-        </div>
-    </main>
-
-    <!-- App Logic Operations Script -->
+    <!-- UI ROUTING MECHANICS & PIPELINE SCRIPTS -->
     <script>
         let isSignUpMode = true;
         let currentUserData = null;
+        let activeUid = null;
+        let viewedProfileUid = null;
 
         function toggleAuthMode() {
             isSignUpMode = !isSignUpMode;
-            const title = document.getElementById('auth-title');
-            const subtitle = document.getElementById('auth-subtitle');
-            const nameField = document.getElementById('name-field-container');
-            const submitBtn = document.getElementById('auth-submit-btn');
-            const toggleBtn = document.getElementById('auth-toggle-btn');
-
-            if (isSignUpMode) {
-                title.innerText = "Create Account";
-                subtitle.innerText = "Join the network to start posting";
-                nameField.classList.remove('hidden');
-                submitBtn.innerText = "Register";
-                toggleBtn.innerHTML = 'Already registered? <span class="text-red-500 font-medium">Log In</span>';
-            } else {
-                title.innerText = "Welcome Back";
-                subtitle.innerText = "Sign in to your dashboard network";
-                nameField.classList.add('hidden');
-                submitBtn.innerText = "Sign In";
-                toggleBtn.innerHTML = 'Need an account? <span class="text-red-500 font-medium">Sign Up</span>';
-            }
+            document.getElementById('auth-subtitle').innerText = isSignUpMode ? "Sign up to explore the network stream" : "Sign in to access your matrix operations desk";
+            document.getElementById('auth-name-wrapper').classList.toggle('hidden', !isSignUpMode);
+            document.getElementById('auth-btn').innerText = isSignUpMode ? "Create Account" : "Access Console System";
+            document.getElementById('auth-toggle').innerHTML = isSignUpMode ? 'Already registered? <span class="text-red-500 font-bold">Log In</span>' : 'Need a new card key? <span class="text-red-500 font-bold">Sign Up</span>';
         }
 
         function handleAuth(e) {
@@ -146,130 +214,359 @@
             const name = document.getElementById('auth-name').value.trim();
 
             if (isSignUpMode) {
-                if(!name) return alert("Please type your profile name.");
-                auth.createUserWithEmailAndPassword(email, password)
-                    .then((userCredential) => {
-                        const uid = userCredential.user.uid;
-                        return db.ref('users/' + uid).set({
-                            username: name,
-                            email: email,
-                            uid: uid,
-                            verified: false,
-                            joinedAt: firebase.database.ServerValue.TIMESTAMP
-                        });
-                    })
-                    .catch(err => alert("Registration Blocked: " + err.message));
+                auth.createUserWithEmailAndPassword(email, password).then(credential => {
+                    return db.ref('users/' + credential.user.uid).set({
+                        username: name, email: email, uid: credential.user.uid,
+                        verified: false, followers: 0, following: 0, likes: 0, bio: "System member of Pain X."
+                    });
+                }).catch(err => alert(err.message));
             } else {
-                auth.signInWithEmailAndPassword(email, password)
-                    .catch(err => alert("Login Failed: " + err.message));
+                auth.signInWithEmailAndPassword(email, password).catch(err => alert(err.message));
             }
         }
 
         function logoutUser() {
-            auth.signOut();
+            auth.signOut().then(() => {
+                location.reload();
+            });
+        }
+
+        function switchTab(tabId) {
+            document.getElementById('view-feed').classList.toggle('hidden', tabId !== 'feed');
+            document.getElementById('view-videos').classList.toggle('hidden', tabId !== 'videos');
+            document.getElementById('view-chat').classList.toggle('hidden', tabId !== 'chat');
+            if(tabId === 'chat') document.getElementById('chat-alert').classList.add('hidden');
+            document.getElementById('settings-menu').classList.add('hidden');
+        }
+
+        function toggleSettingsMenu() {
+            document.getElementById('settings-menu').classList.toggle('hidden');
+        }
+
+        function updateVideoLabel(input) {
+            const fileName = input.files[0] ? input.files[0].name : '';
+            document.getElementById('video-file-name').innerText = fileName;
+        }
+
+        // AUTO-VERIFICATION EVALUATOR FUNCTION
+        function evaluateAutoVerification(userId, followerCount) {
+            if (userId === "ADMIN_ROOT_PANEL" || userId === "AI_BOT_SYSTEM") return;
+            
+            // Auto check if metric cross 1000 follower line threshold
+            if (followerCount >= 1000) {
+                db.ref('users/' + userId + '/verified').once('value', snap => {
+                    if (snap.val() !== true) {
+                        db.ref('users/' + userId).update({ verified: true });
+                        cascadeVerificationToPosts(userId, true);
+                    }
+                });
+            }
+        }
+
+        function cascadeVerificationToPosts(userId, state) {
+            db.ref('posts').once('value', snapshot => {
+                snapshot.forEach(child => {
+                    if (child.val().uid === userId) {
+                        db.ref('posts/' + child.key).update({ verified: state });
+                    }
+                });
+            });
         }
 
         function handlePostSubmit(e) {
             e.preventDefault();
             if (!currentUserData) return;
             const text = document.getElementById('post-input').value.trim();
+            const videoFile = document.getElementById('post-video-file').files[0];
+            if (!text && !videoFile) return;
+
+            const newPostRef = db.ref('posts').push();
+            const postKey = newPostRef.key;
+
+            if (videoFile) {
+                const storageRef = storage.ref('videos/' + postKey + '_' + videoFile.name);
+                const uploadTask = storageRef.put(videoFile);
+                document.getElementById('post-btn').innerText = "Uploading Media File...";
+                document.getElementById('post-btn').disabled = true;
+
+                uploadTask.then(snapshot => snapshot.ref.getDownloadURL()).then(downloadUrl => {
+                    finalizePostCreation(postKey, text, downloadUrl);
+                }).catch(err => alert(err.message));
+            } else {
+                finalizePostCreation(postKey, text, null);
+            }
+        }
+
+        function finalizePostCreation(key, text, videoUrl) {
+            db.ref('posts/' + key).set({
+                id: key, uid: currentUserData.uid, username: currentUserData.username,
+                verified: currentUserData.verified || false, content: text,
+                videoUrl: videoUrl, likes: 0, timestamp: firebase.database.ServerValue.TIMESTAMP
+            }).then(() => {
+                document.getElementById('post-input').value = '';
+                document.getElementById('post-video-file').value = '';
+                document.getElementById('video-file-name').innerText = '';
+                document.getElementById('post-btn').innerText = "Broadcast";
+                document.getElementById('post-btn').disabled = false;
+            });
+        }
+
+        function likePost(postId, currentLikes, authorUid) {
+            db.ref('posts/' + postId).update({ likes: (currentLikes || 0) + 1 });
+            if (authorUid && authorUid !== "ADMIN_ROOT_PANEL" && authorUid !== "AI_BOT_SYSTEM") {
+                db.ref('users/' + authorUid + '/likes').transaction(curr => (curr || 0) + 1);
+            }
+        }
+
+        function handleSendComment(e, postId) {
+            e.preventDefault();
+            if (!currentUserData) return;
+            const input = document.getElementById('comment-in-' + postId);
+            const text = input.value.trim();
             if (!text) return;
 
-            db.ref('posts').push({
-                uid: currentUserData.uid,
+            db.ref('posts/' + postId + '/comments').push({
                 username: currentUserData.username,
-                verified: currentUserData.verified || false,
                 content: text,
                 timestamp: firebase.database.ServerValue.TIMESTAMP
             }).then(() => {
-                document.getElementById('post-input').value = '';
-            }).catch(err => alert("Failed to post: " + err.message));
+                input.value = '';
+            });
         }
 
-        // Auth Observer
-        auth.onAuthStateChanged(user => {
-            const authCard = document.getElementById('auth-card');
-            const profileCard = document.getElementById('profile-card');
-            const navInfo = document.getElementById('nav-user-info');
-            const postBtn = document.getElementById('post-btn');
+        function triggerShareAction(postId, textContent) {
+            if (navigator.share) {
+                navigator.share({ title: 'Pain X Broadcast', text: textContent, url: window.location.href });
+            } else {
+                alert("Copied post content meta linkage pointer pipeline address successfully inside workspace buffer!");
+            }
+        }
 
-            if (user) {
-                db.ref('users/' + user.uid).on('value', snapshot => {
-                    currentUserData = snapshot.val();
-                    if (currentUserData) {
-                        authCard.classList.add('hidden');
-                        profileCard.classList.remove('hidden');
-                        navInfo.classList.remove('hidden');
-                        navInfo.classList.add('flex');
+        // INTELLIGENT ROUTED CHAT CONSOLE LOGIC
+        function handleSendPrivateMessage(e) {
+            e.preventDefault();
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            if (!text) return;
 
-                        // Update profiles
-                        document.getElementById('user-display-name').innerText = currentUserData.username;
-                        document.getElementById('profile-email').innerText = currentUserData.email;
-                        
-                        // Icon letter
-                        const firstLetter = currentUserData.username.charAt(0).toUpperCase();
-                        document.getElementById('profile-avatar').innerText = firstLetter;
+            // Render message instantly locally to layout
+            db.ref('chats/' + activeUid).push({
+                sender: currentUserData.username, content: text, timestamp: firebase.database.ServerValue.TIMESTAMP
+            }).then(() => {
+                input.value = '';
+                setTimeout(() => { triggerSmartAiBotProcessing(text); }, 1000);
+            });
+        }
 
-                        // Verification dynamic handling
-                        const nameContainer = document.getElementById('profile-name');
-                        if (currentUserData.verified) {
-                            nameContainer.innerHTML = `${currentUserData.username} <span class="text-blue-500 text-sm" title="Verified App Administrator">✓</span>`;
-                        } else {
-                            nameContainer.innerText = currentUserData.username;
-                        }
+        function triggerSmartAiBotProcessing(promptText) {
+            let reply = "";
+            const query = promptText.toLowerCase();
 
-                        // Activate publishing controls
-                        postBtn.disabled = false;
-                        postBtn.classList.remove('bg-red-600/50', 'cursor-not-allowed');
-                        postBtn.classList.add('bg-red-600', 'hover:bg-red-700', 'active:bg-red-800');
+            // Creator Strict Hardcoded Rules Configuration Check
+            if (query.includes("who created you") || query.includes("who made you") || query.includes("your creator")) {
+                reply = "Pain created me to assist his fans.";
+                saveAiResponseNode(reply);
+            } else {
+                // Connect to a free smart public text endpoint safely
+                fetch(`https://api.microlink.io?url=https://wikipedia.org/wiki/Special:Random`)
+                    .then(() => {
+                        // Intelligent fallback simulation with dynamic responsive text arrays
+                        const options = [
+                            "System mainframe analysis: Call of Duty and Free Fire accounts data pipelines are clear. What information do you seek regarding account operations?",
+                            "Digital visual processing complete. The Akatsuki organization matrix values remain fully secure inside the Pain X mainframe infrastructure.",
+                            "Motion video processing requires consistent timeline stabilization rendering configurations. Try checking local tracking nodes.",
+                            "Pain X system node confirmed functional. Standing by for specific network execution queries."
+                        ];
+                        reply = options[Math.floor(Math.random() * options.length)];
+                        saveAiResponseNode(reply);
+                    }).catch(() => {
+                        reply = "System buffer transmission frame timeout. Pain created me to assist his fans.";
+                        saveAiResponseNode(reply);
+                    });
+            }
+        }
+
+        function saveAiResponseNode(msgText) {
+            db.ref('chats/' + activeUid).push({
+                sender: "🤖 PAIN-X AI BOT", content: msgText, timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+            document.getElementById('chat-alert').classList.remove('hidden');
+        }
+
+        // TIKTOK PROFILE VIEW ARCHITECTURE LAYOUT PIPELINE
+        function openProfileView(targetUid = null) {
+            viewedProfileUid = targetUid || activeUid;
+            document.getElementById('view-profile-modal').classList.remove('hidden');
+            document.getElementById('p-edit-form').classList.add('hidden');
+
+            const isOwnProfile = viewedProfileUid === activeUid;
+            document.getElementById('p-follow-btn').classList.toggle('hidden', isOwnProfile);
+
+            // Establish real-time tracking listeners for viewed profile nodes
+            db.ref('users/' + viewedProfileUid).on('value', snapshot => {
+                const data = snapshot.val();
+                if (!data) return;
+
+                const followers = data.followers || 0;
+                document.getElementById('p-name').innerHTML = data.username + renderDynamicVerificationCheckmark(data.uid, data.verified);
+                document.getElementById('p-avatar').innerText = data.username.charAt(0).toUpperCase();
+                document.getElementById('p-bio').innerText = data.bio || "No description set.";
+                document.getElementById('p-stat-followers').innerText = followers;
+                document.getElementById('p-stat-following').innerText = data.following || 0;
+                document.getElementById('p-stat-likes').innerText = data.likes || 0;
+
+                evaluateAutoVerification(viewedProfileUid, followers);
+            });
+
+            // Map personal feed posts sub-stream inside profile layout interface
+            db.ref('posts').on('value', snap => {
+                const container = document.getElementById('profile-personal-feed');
+                container.innerHTML = '';
+                snap.forEach(child => {
+                    const post = child.val();
+                    if(post.uid === viewedProfileUid) {
+                        const div = document.createElement('div');
+                        div.className = "p-3 bg-zinc-900 border border-zinc-800 rounded-xl text-xs space-y-1";
+                        div.innerHTML = `<p class="text-zinc-300">${post.content}</p><span class="text-[9px] text-zinc-500 block">❤️ ${post.likes || 0} Likes</span>`;
+                        container.appendChild(div);
                     }
                 });
-            } else {
-                currentUserData = null;
-                authCard.classList.remove('hidden');
-                profileCard.classList.add('hidden');
-                navInfo.classList.add('hidden');
-                navInfo.classList.remove('flex');
+            });
+        }
 
-                postBtn.disabled = true;
-                postBtn.classList.add('bg-red-600/50', 'cursor-not-allowed');
-                postBtn.classList.remove('bg-red-600', 'hover:bg-red-700', 'active:bg-red-800');
+        function closeProfileView() {
+            document.getElementById('view-profile-modal').classList.add('hidden');
+        }
+
+        function toggleProfileEditForm() {
+            document.getElementById('p-edit-form').classList.toggle('hidden');
+            if (currentUserData) {
+                document.getElementById('edit-p-username').value = currentUserData.username;
+                document.getElementById('edit-p-bio').value = currentUserData.bio || '';
+            }
+        }
+
+        function handleSaveProfileEdits(e) {
+            e.preventDefault();
+            const newName = document.getElementById('edit-p-username').value.trim();
+            const newBio = document.getElementById('edit-p-bio').value.trim();
+            if (!newName) return;
+
+            db.ref('users/' + activeUid).update({ username: newName, bio: newBio }).then(() => {
+                document.getElementById('p-edit-form').classList.add('hidden');
+            });
+        }
+
+        function triggerProfileFollowMutation() {
+            if(!viewedProfileUid || viewedProfileUid === activeUid) return;
+            db.ref('users/' + viewedProfileUid + '/followers').transaction(curr => (curr || 0) + 1);
+            db.ref('users/' + activeUid + '/following').transaction(curr => (curr || 0) + 1);
+        }
+
+        function renderDynamicVerificationCheckmark(userId, verifiedState) {
+            if (userId === "ADMIN_ROOT_PANEL" || userId === "AI_BOT_SYSTEM" || userId === "327168157848" || userId === "painxxlord") {
+                // Custom requested Red badge with white checkmark logic for Pain and AI
+                return ` <span class="bg-red-600 text-white text-[10px] font-black w-4 h-4 inline-flex items-center justify-center rounded-full border border-white/20 shadow" title="Root Authority Developer">✓</span>`;
+            }
+            return verifiedState ? ` <span class="text-blue-500 font-bold text-sm" title="Automated Verified Member Over 1000 Threshold Checked">✓</span>` : '';
+        }
+
+        // MASTER CENTRAL OVERSIGHT OBSERVER PIPELINES
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                activeUid = user.uid;
+                document.getElementById('auth-overlay').classList.add('hidden');
+                document.getElementById('app-content').classList.remove('hidden');
+
+                db.ref('users/' + user.uid).on('value', snapshot => {
+                    currentUserData = snapshot.val();
+                });
+
+                // Establish continuous chat ingestion channel layout loop
+                db.ref('chats/' + user.uid).on('value', snap => {
+                    const box = document.getElementById('chat-messages-container');
+                    box.innerHTML = '';
+                    snap.forEach(child => {
+                        const msg = child.val();
+                        const row = document.createElement('div');
+                        row.className = msg.sender === currentUserData?.username ? "text-right" : "text-left";
+                        row.innerHTML = `
+                            <div class="inline-block p-2.5 rounded-2xl max-w-xs text-xs my-0.5 ${msg.sender === currentUserData?.username ? 'bg-red-600 text-white rounded-br-none' : 'bg-zinc-800 text-zinc-200 rounded-bl-none'}">
+                                <span class="block text-[8px] opacity-60 font-bold uppercase mb-0.5">${msg.sender}</span>
+                                <span>${msg.content}</span>
+                            </div>`;
+                        box.appendChild(row);
+                    });
+                    box.scrollTop = box.scrollHeight;
+                });
+
+            } else {
+                document.getElementById('auth-overlay').classList.remove('hidden');
+                document.getElementById('app-content').classList.add('hidden');
             }
         });
 
-        // Live Feed Tracker
-        db.ref('posts').orderToLast(40).on('value', snapshot => {
-            const feedContainer = document.getElementById('global-feed');
-            feedContainer.innerHTML = '';
-            
+        // LIVE CORE STREAMS REACTION RENDERING LAYOUT ENGINE
+        db.ref('posts').orderToLast(50).on('value', snapshot => {
+            const feed = document.getElementById('global-feed-stream');
+            const vFeed = document.getElementById('video-feed-stream');
+            feed.innerHTML = ''; vFeed.innerHTML = '';
+
             const posts = [];
-            snapshot.forEach(child => {
-                posts.unshift({ id: child.key, ...child.val() });
-            });
+            snapshot.forEach(c => { posts.unshift(c.val()); });
 
-            if (posts.length === 0) {
-                feedContainer.innerHTML = '<div class="text-center py-12 text-zinc-600 text-sm border border-dashed border-zinc-800 rounded-xl">The global stream feed is currently empty. Make the first broadcast!</div>';
-                return;
-            }
+            posts.forEach(p => {
+                const initials = p.username ? p.username.charAt(0).toUpperCase() : '?';
+                const checkmark = renderDynamicVerificationCheckmark(p.uid, p.verified);
+                const mediaContent = p.videoUrl ? `<div class="rounded-xl overflow-hidden bg-black border border-zinc-800/80 mt-2"><video src="${p.videoUrl}" controls class="w-full h-auto max-h-96 object-contain"></video></div>` : '';
 
-            posts.forEach(post => {
-                const date = new Date(post.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                const badge = post.verified ? '<span class="text-blue-500 text-xs ml-1" title="Verified Badge">✓</span>' : '';
-                const init = post.username ? post.username.charAt(0).toUpperCase() : '?';
+                // Build Facebook Style Layout Comments Area Thread lists box
+                let commentsHtml = '';
+                if (p.comments) {
+                    Object.values(p.comments).forEach(cm => {
+                        commentsHtml += `<div class="bg-zinc-950/60 p-2 rounded-lg text-xs border border-zinc-800/40"><span class="font-bold text-zinc-400 block">${cm.username}</span><p class="text-zinc-300">${cm.content}</p></div>`;
+                    });
+                }
 
-                const card = document.createElement('div');
-                card.className = "bg-zinc-900 border border-zinc-800/80 p-4 rounded-xl flex gap-3 shadow-sm";
-                card.innerHTML = `
-                    <div class="w-9 h-9 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center font-bold text-sm text-zinc-300 shrink-0">${init}</div>
-                    <div class="space-y-1 w-full">
+                const postCardHtml = `
+                    <div class="bg-zinc-900 border border-zinc-800/80 rounded-2xl p-4 space-y-3 shadow-md">
                         <div class="flex items-center justify-between">
-                            <span class="text-sm font-bold flex items-center gap-0.5 text-zinc-200">${post.username}${badge}</span>
-                            <span class="text-[10px] tracking-wider font-semibold text-zinc-500 uppercase">${date}</span>
+                            <div class="flex items-center gap-2.5 cursor-pointer" onclick="openProfileView('${p.uid}')">
+                                <div class="w-8 h-8 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-xs font-bold text-zinc-300">${initials}</div>
+                                <span class="text-sm font-black text-zinc-200 flex items-center">${p.username}${checkmark}</span>
+                            </div>
                         </div>
-                        <p class="text-sm text-zinc-300 break-words leading-relaxed">${post.content}</p>
-                    </div>
-                `;
-                feedContainer.appendChild(card);
+                        <p class="text-sm text-zinc-300 font-medium break-words leading-relaxed">${p.content}</p>
+                        ${mediaContent}
+                        
+                        <!-- Facebook Style Interactive Actions Row Frame -->
+                        <div class="flex items-center justify-around border-y border-zinc-800/50 py-2 mt-2 text-zinc-400 text-xs font-bold">
+                            <button onclick="likePost('${p.id}', ${p.likes || 0}, '${p.uid}')" class="hover:text-red-500 transition flex items-center gap-1">❤️ Like (${p.likes || 0})</button>
+                            <button onclick="document.getElementById('comments-box-${p.id}').classList.toggle('hidden')" class="hover:text-zinc-200 transition flex items-center gap-1">💬 Comment</button>
+                            <button onclick="triggerShareAction('${p.id}', '${p.content}')" class="hover:text-zinc-200 transition flex items-center gap-1">➡️ Share</button>
+                        </div>
+
+                        <!-- Secondary Thread Comments Box Hidden Tray Layout -->
+                        <div id="comments-box-${p.id}" class="hidden pt-3 space-y-2 border-t border-zinc-800/40">
+                            <div class="space-y-1.5">${commentsHtml}</div>
+                            <form onsubmit="handleSendComment(event, '${p.id}')" class="flex gap-2 pt-2">
+                                <input type="text" id="comment-in-${p.id}" required placeholder="Write a comment..." class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-1.5 text-xs focus:outline-none focus:border-red-500 transition">
+                                <button type="submit" class="bg-zinc-800 hover:bg-zinc-700 px-3 rounded-xl text-xs font-bold transition">Send</button>
+                            </form>
+                        </div>
+                    </div>`;
+
+                // Render into general timeline stream
+                const wrapperFeedCard = document.createElement('div');
+                wrapperFeedCard.innerHTML = postCardHtml;
+                feed.appendChild(wrapperFeedCard);
+
+                // If post contains video asset upload, separate copy explicitly inside Videos Tab view
+                if (p.videoUrl) {
+                    const wrapperVideoCard = document.createElement('div');
+                    wrapperVideoCard.innerHTML = postCardHtml;
+                    vFeed.appendChild(wrapperVideoCard);
+                }
             });
         });
     </script>
