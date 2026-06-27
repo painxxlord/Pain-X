@@ -2,48 +2,32 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Control</title>
-    <style>
-        body { background: #05070a; color: white; font-family: sans-serif; padding: 20px; }
-        .card { background: #111827; border: 1px solid #cc0000; padding: 15px; margin-bottom: 10px; }
-    </style>
+    <title>PainX Admin</title>
+    <style>body { background: #000; color: white; padding: 20px; }</style>
 </head>
 <body>
-    <h1>Admin Control Panel</h1>
-    <div id="userList"><h3>Verify Users</h3></div>
-    <div id="postList"><h3>Moderate Feed</h3></div>
+    <h1>Admin Panel</h1>
+    <div id="manageUsers"></div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-        import { getDatabase, ref, onValue, remove, update } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
-        
-        const db = getDatabase(initializeApp({
-            apiKey: "AIzaSyAN4oKAF6Od2u6aMOBk8G9u4Xa2QyRFWio",
-            authDomain: "painakatsukihub-33fa6.firebaseapp.com",
-            projectId: "painakatsukihub-33fa6",
-            storageBucket: "painakatsukihub-33fa6.firebasestorage.app",
-            messagingSenderId: "327168157848",
-            appId: "1:327168157848:web:49f6f22ed027cbb48608ed"
-        }));
+        import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
+        const db = getDatabase();
 
-        onValue(ref(db, 'users'), snap => {
-            const list = document.getElementById('userList');
-            list.innerHTML = "<h3>Verify Users</h3>";
-            snap.forEach(c => {
-                list.innerHTML += `<div class="card">${c.val().email} 
-                <button onclick="update(ref(db, 'users/${c.key}/verified'), true)">Verify User</button></div>`;
+        onValue(ref(db, 'users'), (snap) => {
+            const container = document.getElementById('manageUsers');
+            container.innerHTML = "";
+            snap.forEach((user) => {
+                const data = user.val();
+                container.innerHTML += `
+                    <div>
+                        ${data.fname} ${data.lname} - Followers: ${data.followers}
+                        ${data.followers >= 1000 ? '<span class="red-badge">✔</span>' : ''}
+                        <button onclick="verify('${user.key}')">Grant Verification</button>
+                    </div>`;
             });
         });
 
-        onValue(ref(db, 'posts'), snap => {
-            const list = document.getElementById('postList');
-            list.innerHTML = "<h3>Moderate Feed</h3>";
-            snap.forEach(c => {
-                list.innerHTML += `<div class="card">${c.val().text} 
-                <button onclick="remove(ref(db, 'posts/${c.key}'))">Delete</button></div>`;
-            });
-        });
-        window.update = update; window.remove = remove; window.ref = ref; window.db = db;
+        window.verify = (uid) => update(ref(db, 'users/' + uid), { verified: true });
     </script>
 </body>
 </html>
