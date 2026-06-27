@@ -2,79 +2,61 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>PainXHub</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PainXHub | Social</title>
     <style>
-        body { background: #05070a; color: white; font-family: sans-serif; margin: 0; padding: 20px; }
-        .card { background: #111827; border: 1px solid #cc0000; padding: 15px; border-radius: 8px; margin-bottom: 10px; }
-        .btn { background: #cc0000; color: white; padding: 10px; border: none; border-radius: 6px; cursor: pointer; }
-        .badge { color: #3b82f6; font-weight: bold; }
-        .hidden { display: none !important; }
+        body { background: #0f0f0f; color: white; font-family: sans-serif; margin: 0; }
+        .red-badge { background: #cc0000; color: white; border-radius: 50%; padding: 2px 6px; font-size: 0.8em; border: 2px solid white; }
+        .container { max-width: 500px; margin: auto; padding: 20px; }
+        .card { background: #1c1c1c; padding: 15px; border-radius: 10px; margin-bottom: 15px; }
+        .btn { background: #cc0000; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; }
     </style>
 </head>
 <body>
-    <div id="authSection" class="card">
-        <h2>Join the Akatsuki</h2>
-        <input type="email" id="email" placeholder="Email" style="width:100%; padding:10px; margin-bottom:10px;">
-        <input type="password" id="pass" placeholder="Password" style="width:100%; padding:10px; margin-bottom:10px;">
-        <button id="authBtn" class="btn">Enter Hub Space</button>
+    <div id="authSection" class="container">
+        <h2>Join PainXHub</h2>
+        <input type="text" id="fname" placeholder="First Name"><br>
+        <input type="text" id="lname" placeholder="Last Name"><br>
+        <input type="email" id="email" placeholder="Email"><br>
+        <input type="password" id="pass" placeholder="Password"><br>
+        <button id="authBtn" class="btn">Create Account</button>
     </div>
 
     <div id="dashSection" class="hidden">
-        <h3>PainXHub <span id="verifyBadge" class="badge hidden">✔ Verified</span></h3>
-        
-        <!-- AI Chatbot Section -->
-        <div class="card" style="border: 2px solid #3b82f6;">
-            <h4>PainX AI Bot <span class="badge">✔ Verified</span></h4>
-            <p>Official Akatsuki AI is online.</p>
+        <nav><h3>PainXHub Profile</h3></nav>
+        <div id="profileView" class="card">
+            <h3 id="displayName"></h3>
+            <p>Followers: <span id="followerCount">0</span></p>
+            <button id="followBtn" class="btn">Unfollow Pain</button>
         </div>
-
-        <div class="card">
-            <h4>Live Feed</h4>
-            <textarea id="postText" style="width:100%; background:#000; color:white;"></textarea>
-            <button id="postBtn" class="btn">Publish Post</button>
-            <div id="feed"></div>
-        </div>
+        <div id="feed"></div>
     </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
-    import { getDatabase, ref, push, onValue, set } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
+    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+    import { getDatabase, ref, set, update, onValue } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
 
-    const app = initializeApp({
-        apiKey: "AIzaSyAN4oKAF6Od2u6aMOBk8G9u4Xa2QyRFWio",
-        authDomain: "painakatsukihub-33fa6.firebaseapp.com",
-        projectId: "painakatsukihub-33fa6",
-        storageBucket: "painakatsukihub-33fa6.firebasestorage.app",
-        messagingSenderId: "327168157848",
-        appId: "1:327168157848:web:49f6f22ed027cbb48608ed"
-    });
-
-    const auth = getAuth(app);
-    const db = getDatabase(app);
+    // Initialize (Add your Firebase config here)
+    const db = getDatabase();
 
     document.getElementById('authBtn').onclick = () => {
-        const e = document.getElementById('email').value;
-        const p = document.getElementById('pass').value;
-        createUserWithEmailAndPassword(auth, e, p).then(c => set(ref(db, 'users/' + c.user.uid), {email: e, verified: false})).catch(() => signInWithEmailAndPassword(auth, e, p));
+        const fname = document.getElementById('fname').value;
+        const lname = document.getElementById('lname').value;
+        const email = document.getElementById('email').value;
+        const pass = document.getElementById('pass').value;
+
+        createUserWithEmailAndPassword(getAuth(), email, pass).then(res => {
+            set(ref(db, 'users/' + res.user.uid), {
+                fname, lname, followers: 1, following: true, verified: false
+            });
+        });
     };
 
-    onAuthStateChanged(auth, user => {
-        if(user) {
-            document.getElementById('authSection').classList.add('hidden');
-            document.getElementById('dashSection').classList.remove('hidden');
-            onValue(ref(db, 'users/' + user.uid), snap => {
-                if(snap.val()?.verified) document.getElementById('verifyBadge').classList.remove('hidden');
-            });
-            onValue(ref(db, 'posts'), snap => {
-                const feed = document.getElementById('feed');
-                feed.innerHTML = "";
-                snap.forEach(c => feed.innerHTML += `<div class="card">${c.val().text}</div>`);
-            });
-        }
-    });
-
-    document.getElementById('postBtn').onclick = () => push(ref(db, 'posts'), { text: document.getElementById('postText').value });
+    // The Immortal Rule
+    document.getElementById('followBtn').onclick = () => {
+        alert("System Error: You cannot unfollow Pain. He rules this place.");
+    };
 </script>
 </body>
 </html>
