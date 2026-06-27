@@ -2,62 +2,62 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PainXHub</title>
     <style>
-        body { background: #0f0f0f; color: white; font-family: sans-serif; margin: 0; padding: 20px; }
+        body { background: #050505; color: #fff; font-family: sans-serif; margin: 0; padding: 10px; }
         .container { max-width: 500px; margin: 0 auto; }
-        .card { background: #1c1c1c; padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #333; }
-        input { width: 100%; padding: 12px; margin: 8px 0; box-sizing: border-box; border-radius: 5px; border: 1px solid #444; background: #000; color: white; }
-        .btn { background: #cc0000; color: white; border: none; padding: 12px; width: 100%; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        .hidden { display: none !important; }
+        .card { background: #181818; padding: 20px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #333; }
+        .red-badge { color: #fff; background: #cc0000; border-radius: 50%; padding: 2px 6px; font-size: 12px; }
+        input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 6px; border: 1px solid #444; background: #000; color: white; box-sizing: border-box; }
+        .btn { background: #cc0000; color: white; border: none; padding: 12px; width: 100%; border-radius: 6px; cursor: pointer; }
     </style>
 </head>
 <body>
     <div class="container">
-        <div id="authSection" class="card">
-            <h2 id="formTitle">Join PainXHub</h2>
-            <input type="text" id="fname" placeholder="First Name">
-            <input type="text" id="lname" placeholder="Last Name">
-            <input type="email" id="email" placeholder="Email">
-            <input type="password" id="pass" placeholder="Password">
-            <button id="authBtn" class="btn">Create Account</button>
-            <p id="toggleText" style="text-align:center; margin-top:15px; cursor:pointer; color:#888;">Already have an account? <span style="color:#cc0000;">Sign In</span></p>
-        </div>
-        <div id="dashSection" class="hidden">
+        <div id="dashSection">
+            <h3>PainXHub Feed</h3>
+            <div id="feed"></div>
             <div class="card">
-                <h3>PainXHub Profile</h3>
-                <p>Followers: <span id="followerCount">1001</span></p>
-                <button id="followBtn" class="btn">Unfollow Pain</button>
+                <h3>Chat with Pain AI</h3>
+                <div id="chatLog" style="background:#000; padding:10px; margin-bottom:10px;"></div>
+                <input type="text" id="aiInput" placeholder="Message Pain AI...">
+                <button onclick="chat()" class="btn">Send</button>
             </div>
         </div>
     </div>
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
-    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
-    const app = initializeApp({ /* YOUR CONFIG */ });
-    const auth = getAuth(app);
-    const db = getDatabase(app);
-    let isLogin = false;
-    const formTitle = document.getElementById('formTitle');
-    const authBtn = document.getElementById('authBtn');
-    const fname = document.getElementById('fname');
-    const lname = document.getElementById('lname');
-    document.getElementById('toggleText').onclick = () => {
-        isLogin = !isLogin;
-        formTitle.innerText = isLogin ? "Sign In" : "Join PainXHub";
-        authBtn.innerText = isLogin ? "Sign In" : "Create Account";
-        fname.style.display = isLogin ? "none" : "block";
-        lname.style.display = isLogin ? "none" : "block";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    
+    const firebaseConfig = {
+        apiKey: "AIzaSyAN4oKAF6Od2u6aMOBk8G9u4Xa2QyRFWio",
+        authDomain: "painakatsukihub-33fa6.firebaseapp.com",
+        databaseURL: "https://painakatsukihub-33fa6-default-rtdb.firebaseio.com",
+        projectId: "painakatsukihub-33fa6",
+        storageBucket: "painakatsukihub-33fa6.firebasestorage.app",
+        messagingSenderId: "327168157848",
+        appId: "1:327168157848:web:49f6f22ed027cbb48608ed"
     };
-    authBtn.onclick = () => {
-        const e = document.getElementById('email').value;
-        const p = document.getElementById('pass').value;
-        if(isLogin) signInWithEmailAndPassword(auth, e, p).then(() => { document.getElementById('authSection').classList.add('hidden'); document.getElementById('dashSection').classList.remove('hidden'); }).catch(err => alert(err.message));
-        else createUserWithEmailAndPassword(auth, e, p).then(res => { set(ref(db, 'users/' + res.user.uid), { name: fname.value + " " + lname.value, followers: 1 }); document.getElementById('authSection').classList.add('hidden'); document.getElementById('dashSection').classList.remove('hidden'); }).catch(err => alert(err.message));
+    const db = getDatabase(initializeApp(firebaseConfig));
+
+    window.chat = () => {
+        const input = document.getElementById('aiInput').value;
+        const log = document.getElementById('chatLog');
+        log.innerHTML += `<p>You: ${input}</p>`;
+        if(input.toLowerCase().includes("who created you")) {
+            log.innerHTML += `<p style="color:#cc0000;">Pain AI: Pain created me to help assist his fans.</p>`;
+        }
+        document.getElementById('aiInput').value = "";
     };
-    document.getElementById('followBtn').onclick = () => alert("You cannot unfollow Pain. He rules this place.");
+
+    onValue(ref(db, 'users'), (s) => {
+        const feed = document.getElementById('feed');
+        feed.innerHTML = "";
+        s.forEach((u) => {
+            const d = u.val();
+            feed.innerHTML += `<div class="card">${d.name} ${d.verified ? '<span class="red-badge">✔</span>' : ''} <br> Followers: ${d.followers}</div>`;
+        });
+    });
 </script>
 </body>
 </html>
