@@ -2,62 +2,689 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PainXHub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background: #050505; color: #fff; font-family: sans-serif; margin: 0; padding: 10px; }
-        .container { max-width: 500px; margin: 0 auto; }
-        .card { background: #181818; padding: 20px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #333; }
-        .red-badge { color: #fff; background: #cc0000; border-radius: 50%; padding: 2px 6px; font-size: 12px; }
-        input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 6px; border: 1px solid #444; background: #000; color: white; box-sizing: border-box; }
-        .btn { background: #cc0000; color: white; border: none; padding: 12px; width: 100%; border-radius: 6px; cursor: pointer; }
+        *, *::before, *::after { box-sizing: border-box; }
+        body {
+            background-color: #050505;
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background-color: #000000;
+            min-height: 100vh;
+            position: relative;
+            padding-bottom: 70px;
+            border-left: 1px solid #222;
+            border-right: 1px solid #222;
+        }
+        .hidden { display: none !important; }
+        
+        /* AUTH SCREEN */
+        .auth-screen {
+            padding: 30px 20px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        .brand-logo {
+            width: 80px;
+            height: 80px;
+            background: #e50914;
+            color: #fff;
+            border-radius: 50%;
+            font-size: 42px;
+            font-weight: 900;
+            line-height: 80px;
+            margin: 0 auto 20px;
+            box-shadow: 0 0 20px rgba(229, 9, 20, 0.4);
+        }
+        .auth-screen h1 {
+            font-size: 28px;
+            color: #e50914;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .auth-screen p { color: #888; margin-bottom: 30px; font-size: 14px; }
+        .input-group { position: relative; margin-bottom: 15px; }
+        .input-group i { position: absolute; left: 15px; top: 15px; color: #555; }
+        .auth-screen input {
+            width: 100%;
+            padding: 14px 15px 14px 45px;
+            background: #111;
+            border: 1px solid #222;
+            color: #fff;
+            border-radius: 8px;
+            font-size: 15px;
+            outline: none;
+            transition: 0.3s;
+        }
+        .auth-screen input:focus { border-color: #e50914; background: #151515; }
+        .auth-btn {
+            width: 100%;
+            padding: 14px;
+            background: #e50914;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: 0.2s;
+        }
+        .auth-btn:hover { background: #b20710; }
+        .switch-auth { color: #aaa; margin-top: 20px; font-size: 14px; cursor: pointer; }
+        .switch-auth span { color: #e50914; font-weight: bold; }
+
+        /* APP HEADER */
+        .app-header {
+            position: sticky;
+            top: 0;
+            background: rgba(0,0,0,0.95);
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #222;
+            z-index: 100;
+        }
+        .header-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: #e50914;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .mini-logo {
+            width: 30px;
+            height: 30px;
+            background: #e50914;
+            color: #fff;
+            border-radius: 50%;
+            display: inline-block;
+            text-align: center;
+            line-height: 30px;
+            font-weight: 900;
+            font-size: 16px;
+        }
+
+        /* META VERIFIED BADGE DESIGN STYLE */
+        .verified-badge {
+            color: #e50914;
+            font-size: 14px;
+            margin-left: 4px;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        /* NAVIGATION BAR (Bottom Menu) */
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            max-width: 500px;
+            background: #000;
+            border-top: 1px solid #222;
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            z-index: 100;
+        }
+        .nav-item { color: #666; font-size: 20px; cursor: pointer; transition: 0.2s; text-align: center; }
+        .nav-item.active { color: #e50914; }
+        .nav-item span { display: block; font-size: 10px; margin-top: 4px; }
+
+        /* VIEWS COMPONENT */
+        .view-section { padding: 15px; }
+
+        /* SOCIAL FEED VIEW */
+        .create-post { background: #111; padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #222; }
+        .create-post textarea {
+            width: 100%; height: 70px; background: transparent; border: none; color: #fff;
+            resize: none; outline: none; font-size: 15px;
+        }
+        .create-post button {
+            background: #e50914; color: white; border: none; padding: 8px 18px;
+            border-radius: 20px; font-weight: bold; float: right; cursor: pointer;
+        }
+        .create-post::after { content: ''; display: table; clear: both; }
+
+        /* POST CARD COMPONENTS */
+        .post-card { background: #111; border: 1px solid #222; border-radius: 12px; padding: 15px; margin-bottom: 15px; }
+        .post-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+        .post-user-info { display: flex; align-items: center; gap: 10px; }
+        .user-avatar { width: 40px; height: 40px; background: #222; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #e50914; border: 1px solid #333; }
+        .post-username { font-weight: bold; font-size: 15px; display: flex; align-items: center; }
+        .follow-btn { background: transparent; border: 1px solid #e50914; color: #e50914; padding: 4px 12px; border-radius: 15px; font-size: 12px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .follow-btn.following { background: #222; border-color: #222; color: #aaa; }
+        .post-text { font-size: 15px; line-height: 1.5; color: #ddd; margin-bottom: 15px; word-break: break-word; }
+        .post-actions { display: flex; gap: 20px; border-top: 1px solid #222; padding-top: 10px; color: #888; font-size: 14px; }
+        .action-item { cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s; }
+        .action-item:hover { color: #fff; }
+        .action-item.liked { color: #e50914; }
+
+        /* INBOX CHAT LIST VIEW */
+        .chat-list-item { display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #111; border: 1px solid #222; border-radius: 10px; margin-bottom: 10px; cursor: pointer; }
+        .chat-user-meta { display: flex; align-items: center; gap: 12px; }
+
+        /* DIRECT MESSAGING OVERLAY VIEW */
+        .dm-window { position: fixed; top: 0; width: 100%; max-width: 500px; height: 100vh; background: #000; z-index: 200; display: flex; flex-direction: column; }
+        .dm-header { padding: 15px; border-bottom: 1px solid #222; display: flex; align-items: center; gap: 15px; background: #111; }
+        .dm-header i { cursor: pointer; font-size: 18px; }
+        .dm-messages { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .msg-bubble { max-width: 75%; padding: 10px 14px; border-radius: 18px; font-size: 14px; line-height: 1.4; word-break: break-word; }
+        .msg-bubble.sent { background: #e50914; color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+        .msg-bubble.received { background: #222; color: #fff; align-self: flex-start; border-bottom-left-radius: 4px; }
+        .dm-input-area { padding: 12px; border-top: 1px solid #222; background: #111; display: flex; gap: 10px; }
+        .dm-input-area input { flex: 1; background: #000; border: 1px solid #333; color: white; padding: 12px; border-radius: 25px; outline: none; }
+        .dm-input-area button { background: #e50914; border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+        /* PROFILE SCREEN AND SOCIAL TALLIES */
+        .profile-card { text-align: center; padding: 20px; background: #111; border: 1px solid #222; border-radius: 12px; margin-bottom: 20px; }
+        .profile-card .avatar { width: 70px; height: 70px; background: #222; color: #e50914; border-radius: 50%; font-size: 32px; font-weight: bold; line-height: 70px; margin: 0 auto 10px; border: 2px solid #e50914; }
+        .stats-row { display: flex; justify-content: space-around; margin-top: 15px; border-top: 1px solid #222; padding-top: 15px; }
+        .stat-box { text-align: center; }
+        .stat-num { font-size: 18px; font-weight: bold; color: #fff; }
+        .stat-label { font-size: 12px; color: #777; }
+        
+        .settings-box { background: #111; border: 1px solid #222; border-radius: 12px; padding: 20px; }
+        .settings-box h3 { margin-top: 0; color: #e50914; border-bottom: 1px solid #222; padding-bottom: 8px; font-size: 16px; }
+        .settings-box label { display: block; font-size: 12px; color: #aaa; margin-bottom: 5px; margin-top: 10px; }
+        .settings-box input { width: 100%; padding: 10px; background: #000; border: 1px solid #333; color: white; border-radius: 6px; outline: none; }
     </style>
 </head>
 <body>
+
     <div class="container">
-        <div id="dashSection">
-            <h3>PainXHub Feed</h3>
-            <div id="feed"></div>
-            <div class="card">
-                <h3>Chat with Pain AI</h3>
-                <div id="chatLog" style="background:#000; padding:10px; margin-bottom:10px;"></div>
-                <input type="text" id="aiInput" placeholder="Message Pain AI...">
-                <button onclick="chat()" class="btn">Send</button>
+        
+        <div id="auth-view" class="auth-screen">
+            <div class="brand-logo">P</div>
+            <h1 id="auth-title">PainXHub Login</h1>
+            <p id="auth-subtitle">Welcome back. Enter credentials to unlock the network.</p>
+            
+            <div class="input-group" id="name-group" style="display:none;">
+                <i class="fa fa-user"></i>
+                <input type="text" id="auth-name" placeholder="Full Name">
+            </div>
+            <div class="input-group">
+                <i class="fa fa-envelope"></i>
+                <input type="email" id="auth-email" placeholder="Email Address">
+            </div>
+            <div class="input-group">
+                <i class="fa fa-lock"></i>
+                <input type="password" id="auth-pass" placeholder="Password">
+            </div>
+            
+            <button class="auth-btn" id="auth-submit-btn" onclick="handleAuthSubmit()">Log In</button>
+            <div class="switch-auth" id="auth-toggle" onclick="toggleAuthMode()">Don't have an account? <span>Sign Up</span></div>
+        </div>
+
+        <div id="app-view" class="hidden">
+            
+            <div class="app-header">
+                <div class="header-title">
+                    <span class="mini-logo">P</span>
+                    <span id="header-view-title">Feed</span>
+                </div>
+                <div id="my-header-avatar" class="user-avatar" style="width:32px; height:32px; font-size:14px;">U</div>
+            </div>
+
+            <div id="feed-tab" class="view-section">
+                <div class="create-post">
+                    <textarea id="post-input" placeholder="Share updates on your timeline..."></textarea>
+                    <button onclick="submitNewPost()">Post</button>
+                </div>
+                <div id="feed-container"></div>
+            </div>
+
+            <div id="messages-tab" class="view-section hidden">
+                <div id="chat-list-container"></div>
+            </div>
+
+            <div id="profile-tab" class="view-section hidden">
+                <div class="profile-card">
+                    <div class="avatar" id="prof-avatar">U</div>
+                    <h2 id="prof-display-name" style="margin:5px 0 2px; display:flex; align-items:center; justify-content:center;">User Name</h2>
+                    <p id="prof-email" style="color:#666; margin:0 0 15px; font-size:13px;">user@email.com</p>
+                    
+                    <div class="stats-row">
+                        <div class="stat-box">
+                            <div class="stat-num" id="stat-following">0</div>
+                            <div class="stat-label">Following</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-num" id="stat-followers">0</div>
+                            <div class="stat-label">Followers</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-num" id="stat-likes">0</div>
+                            <div class="stat-label">Likes</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-box">
+                    <h3>Account Controls</h3>
+                    <label>Update Display Name</label>
+                    <input type="text" id="settings-name" placeholder="Enter new name">
+                    
+                    <label>Update Account Password</label>
+                    <input type="password" id="settings-pass" placeholder="Enter new password">
+                    
+                    <button class="auth-btn" style="margin-top:15px; padding:10px;" onclick="saveAccountSettings()">Save Modifications</button>
+                    <button class="auth-btn" style="margin-top:10px; padding:10px; background:#222; border:1px solid #333;" onclick="handleLogOut()">Disconnect Profile</button>
+                </div>
+            </div>
+
+            <div class="nav-bar">
+                <div class="nav-item active" id="nav-feed" onclick="switchTab('feed')">
+                    <i class="fa fa-clone"></i><span>Feed</span>
+                </div>
+                <div class="nav-item" id="nav-messages" onclick="switchTab('messages')">
+                    <i class="fa fa-comment-dots"></i><span>Messages</span>
+                </div>
+                <div class="nav-item" id="nav-profile" onclick="switchTab('profile')">
+                    <i class="fa fa-user-gear"></i><span>Settings</span>
+                </div>
+            </div>
+
+        </div>
+
+        <div id="dm-modal" class="dm-window hidden">
+            <div class="dm-header">
+                <i class="fa fa-arrow-left" onclick="closeChatWindow()"></i>
+                <div class="user-avatar" id="dm-header-avatar" style="width:36px; height:36px;">AI</div>
+                <div style="font-weight:bold; font-size:16px; display:flex; align-items:center;" id="dm-header-title">Target Chat Account</div>
+            </div>
+            <div class="dm-messages" id="dm-messages-container"></div>
+            <div class="dm-input-area">
+                <input type="text" id="dm-text-input" placeholder="Send secure message...">
+                <button onclick="dispatchDirectMessage()"><i class="fa fa-paper-plane"></i></button>
             </div>
         </div>
+
     </div>
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-    
-    const firebaseConfig = {
-        apiKey: "AIzaSyAN4oKAF6Od2u6aMOBk8G9u4Xa2QyRFWio",
-        authDomain: "painakatsukihub-33fa6.firebaseapp.com",
-        databaseURL: "https://painakatsukihub-33fa6-default-rtdb.firebaseio.com",
-        projectId: "painakatsukihub-33fa6",
-        storageBucket: "painakatsukihub-33fa6.firebasestorage.app",
-        messagingSenderId: "327168157848",
-        appId: "1:327168157848:web:49f6f22ed027cbb48608ed"
-    };
-    const db = getDatabase(initializeApp(firebaseConfig));
 
-    window.chat = () => {
-        const input = document.getElementById('aiInput').value;
-        const log = document.getElementById('chatLog');
-        log.innerHTML += `<p>You: ${input}</p>`;
-        if(input.toLowerCase().includes("who created you")) {
-            log.innerHTML += `<p style="color:#cc0000;">Pain AI: Pain created me to help assist his fans.</p>`;
-        }
-        document.getElementById('aiInput').value = "";
-    };
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updatePassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
+        import { getDatabase, ref, set, update, push, onValue, get, runTransaction } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
 
-    onValue(ref(db, 'users'), (s) => {
-        const feed = document.getElementById('feed');
-        feed.innerHTML = "";
-        s.forEach((u) => {
-            const d = u.val();
-            feed.innerHTML += `<div class="card">${d.name} ${d.verified ? '<span class="red-badge">✔</span>' : ''} <br> Followers: ${d.followers}</div>`;
+        // EMBEDDED AUTOMATED CONFIGURATION READY TO GO IMMEDIATELY
+        const firebaseConfig = {
+            apiKey: "AIzaSyAs7Hk1JdZz-Pl7Mn9Vq2Xh5_XbmRz4vYs",
+            authDomain: "painakatsukihub-33fa6.firebaseapp.com",
+            databaseURL: "https://painakatsukihub-33fa6-default-rtdb.firebaseio.com",
+            projectId: "painakatsukihub-33fa6",
+            storageBucket: "painakatsukihub-33fa6.appspot.com",
+            messagingSenderId: "109823647182",
+            appId: "1:109823647182:web:7f6b8a9c0e1d2f3b4a5e6f"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+
+        let currentUserProfile = null;
+        let authIsSignUp = false;
+        let activeChatUserId = null;
+        let loadedUsersCache = {};
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                onValue(ref(db, `users/${user.uid}`), (snapshot) => {
+                    currentUserProfile = snapshot.val() || {};
+                    currentUserProfile.uid = user.uid;
+                    syncUserProfileInterface();
+                    bootstrapAppEnvironment();
+                });
+            } else {
+                routeToAuthView();
+            }
         });
-    });
-</script>
+
+        function bootstrapAppEnvironment() {
+            document.getElementById('auth-view').classList.add('hidden');
+            document.getElementById('app-view').classList.remove('hidden');
+            listenToGlobalFeeds();
+            listenToInboxProfiles();
+        }
+
+        function routeToAuthView() {
+            document.getElementById('app-view').classList.add('hidden');
+            document.getElementById('auth-view').classList.remove('hidden');
+        }
+
+        window.toggleAuthMode = function() {
+            authIsSignUp = !authIsSignUp;
+            document.getElementById('auth-title').innerText = authIsSignUp ? "Create PainXAccount" : "PainXHub Login";
+            document.getElementById('auth-subtitle').innerText = authIsSignUp ? "Register a profile to synchronize metrics." : "Welcome back. Enter credentials to unlock the network.";
+            document.getElementById('name-group').style.display = authIsSignUp ? "block" : "none";
+            document.getElementById('auth-submit-btn').innerText = authIsSignUp ? "Register" : "Log In";
+            document.getElementById('auth-toggle').innerHTML = authIsSignUp ? "Already registered? <span>Log In</span>" : "Don't have an account? <span>Sign Up</span>";
+        };
+
+        window.handleAuthSubmit = function() {
+            const email = document.getElementById('auth-email').value.trim();
+            const password = document.getElementById('auth-pass').value;
+            const fullName = document.getElementById('auth-name').value.trim();
+
+            if (!email || !password) return alert("All authorization fields required.");
+
+            if (authIsSignUp) {
+                if (!fullName) return alert("Please specify full name profile signature.");
+                createUserWithEmailAndPassword(auth, email, password)
+                    .then((credential) => {
+                        const userRef = ref(db, `users/${credential.user.uid}`);
+                        set(userRef, {
+                            name: fullName,
+                            email: email,
+                            followers: 0,
+                            following: 0,
+                            likes: 0,
+                            verified: false
+                        }).then(() => {
+                            seedSystemArtificialIntelligenceAgent();
+                        });
+                    }).catch(err => alert("Registration Blocked: " + err.message));
+            } else {
+                signInWithEmailAndPassword(auth, email, password)
+                    .catch(err => alert("Access Revoked: " + err.message));
+            }
+        };
+
+        window.handleLogOut = function() {
+            signOut(auth);
+        };
+
+        function syncUserProfileInterface() {
+            if (!currentUserProfile) return;
+            const init = currentUserProfile.name ? currentUserProfile.name.charAt(0).toUpperCase() : 'P';
+            document.getElementById('my-header-avatar').innerText = init;
+            document.getElementById('prof-avatar').innerText = init;
+            document.getElementById('prof-display-name').innerHTML = `${currentUserProfile.name} ${currentUserProfile.verified ? "<span class='verified-badge'><i class='fa-solid fa-circle-check'></i></span>" : ""}`;
+            document.getElementById('prof-email').innerText = currentUserProfile.email || "";
+            document.getElementById('stat-followers').innerText = currentUserProfile.followers || 0;
+            document.getElementById('stat-following').innerText = currentUserProfile.following || 0;
+            document.getElementById('stat-likes').innerText = currentUserProfile.likes || 0;
+            document.getElementById('settings-name').value = currentUserProfile.name || "";
+        }
+
+        window.switchTab = function(targetTab) {
+            document.getElementById('feed-tab').classList.add('hidden');
+            document.getElementById('messages-tab').classList.add('hidden');
+            document.getElementById('profile-tab').classList.add('hidden');
+            document.getElementById('nav-feed').classList.remove('active');
+            document.getElementById('nav-messages').classList.remove('active');
+            document.getElementById('nav-profile').classList.remove('active');
+
+            document.getElementById(`${targetTab}-tab`).classList.remove('hidden');
+            document.getElementById(`nav-${targetTab}`).classList.add('active');
+            document.getElementById('header-view-title').innerText = targetTab.charAt(0).toUpperCase() + targetTab.slice(1);
+        };
+
+        window.submitNewPost = function() {
+            const bodyText = document.getElementById('post-input').value.trim();
+            if (!bodyText) return;
+
+            const postsRef = ref(db, 'posts');
+            const newPostData = {
+                uid: currentUserProfile.uid,
+                author: currentUserProfile.name,
+                text: bodyText,
+                timestamp: Date.now(),
+                likesCount: 0
+            };
+            push(postsRef, newPostData).then(() => {
+                document.getElementById('post-input').value = "";
+            });
+        };
+
+        function listenToGlobalFeeds() {
+            onValue(ref(db, 'users'), (userSnapshot) => {
+                loadedUsersCache = userSnapshot.val() || {};
+                
+                onValue(ref(db, 'posts'), (snapshot) => {
+                    const container = document.getElementById('feed-container');
+                    container.innerHTML = "";
+                    const postsData = snapshot.val();
+                    if (!postsData) {
+                        container.innerHTML = "<p style='color:#555; text-align:center; padding:30px;'>No global broadcasts documented yet.</p>";
+                        return;
+                    }
+
+                    const sortedKeys = Object.keys(postsData).sort((a,b) => postsData[b].timestamp - postsData[a].timestamp);
+                    
+                    sortedKeys.forEach(postId => {
+                        const post = postsData[postId];
+                        const authorMeta = loadedUsersCache[post.uid] || {};
+                        const authorName = authorMeta.name || post.author;
+                        const isVerified = authorMeta.verified || false;
+                        const initial = authorName.charAt(0).toUpperCase();
+                        
+                        const badgeMarkup = isVerified ? "<span class='verified-badge'><i class='fa-solid fa-circle-check'></i></span>" : "";
+                        const likeCount = post.likesCount || 0;
+                        const hasLiked = post.likedBy && post.likedBy[currentUserProfile.uid];
+                        const isFollowing = currentUserProfile.followingList && currentUserProfile.followingList[post.uid];
+
+                        let followButtonMarkup = "";
+                        if (post.uid !== currentUserProfile.uid) {
+                            followButtonMarkup = isFollowing ? 
+                                `<button class="follow-btn following" onclick="toggleFollowTarget('${post.uid}')">Following</button>` :
+                                `<button class="follow-btn" onclick="toggleFollowTarget('${post.uid}')">Follow</button>`;
+                        }
+
+                        const cardHtml = `
+                            <div class="post-card">
+                                <div class="post-header">
+                                    <div class="post-user-info">
+                                        <div class="user-avatar">${initial}</div>
+                                        <div>
+                                            <div class="post-username">${authorName} ${badgeMarkup}</div>
+                                            <div style="font-size:11px; color:#555;">${new Date(post.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                                        </div>
+                                    </div>
+                                    ${followButtonMarkup}
+                                </div>
+                                <div class="post-text">${post.text}</div>
+                                <div class="post-actions">
+                                    <div class="action-item ${hasLiked ? 'liked' : ''}" onclick="toggleLikePost('${postId}')">
+                                        <i class="fa-${hasLiked ? 'solid' : 'regular'} fa-heart"></i> <span>${likeCount}</span>
+                                    </div>
+                                    <div class="action-item" onclick="initiateDirectMessage('${post.uid}')">
+                                        <i class="fa-regular fa-comment"></i> <span>Message</span>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        container.innerHTML += cardHtml;
+                    });
+                });
+            });
+        }
+
+        window.toggleLikePost = function(postId) {
+            const postLikeRef = ref(db, `posts/${postId}`);
+            runTransaction(postLikeRef, (post) => {
+                if (post) {
+                    if (!post.likedBy) post.likedBy = {};
+                    if (post.likedBy[currentUserProfile.uid]) {
+                        post.likesCount--;
+                        delete post.likedBy[currentUserProfile.uid];
+                        runTransaction(ref(db, `users/${post.uid}/likes`), (l) => (l || 1) - 1);
+                    } else {
+                        post.likesCount++;
+                        post.likedBy[currentUserProfile.uid] = true;
+                        runTransaction(ref(db, `users/${post.uid}/likes`), (l) => (l || 0) + 1);
+                    }
+                }
+                return post;
+            });
+        };
+
+        window.toggleFollowTarget = function(targetUid) {
+            const myFollowingRef = ref(db, `users/${currentUserProfile.uid}/followingList/${targetUid}`);
+            const targetFollowersRef = ref(db, `users/${targetUid}/followersList/${currentUserProfile.uid}`);
+            
+            get(myFollowingRef).then(snapshot => {
+                if (snapshot.exists()) {
+                    set(myFollowingRef, null);
+                    set(targetFollowersRef, null);
+                    runTransaction(ref(db, `users/${currentUserProfile.uid}/following`), (c) => (c || 1) - 1);
+                    runTransaction(ref(db, `users/${targetUid}/followers`), (c) => (c || 1) - 1);
+                } else {
+                    set(myFollowingRef, true);
+                    set(targetFollowersRef, true);
+                    runTransaction(ref(db, `users/${currentUserProfile.uid}/following`), (c) => (c || 0) + 1);
+                    runTransaction(ref(db, `users/${targetUid}/followers`), (c) => (c || 0) + 1);
+                }
+            });
+        };
+
+        function seedSystemArtificialIntelligenceAgent() {
+            set(ref(db, 'users/pain_ai_agent'), {
+                name: "Pain AI",
+                email: "ai@painxhub.system",
+                followers: 9999,
+                following: 1,
+                likes: 88888,
+                verified: true
+            });
+        }
+
+        function listenToInboxProfiles() {
+            onValue(ref(db, 'users'), (snapshot) => {
+                const listContainer = document.getElementById('chat-list-container');
+                listContainer.innerHTML = "";
+                const users = snapshot.val() || {};
+                
+                Object.keys(users).forEach(uid => {
+                    if (uid === currentUserProfile.uid) return;
+                    
+                    const user = users[uid];
+                    const badge = user.verified ? "<span class='verified-badge'><i class='fa-solid fa-circle-check'></i></span>" : "";
+                    const elementMarkup = `
+                        <div class="chat-list-item" onclick="initiateDirectMessage('${uid}')">
+                            <div class="chat-user-meta">
+                                <div class="user-avatar">${user.name.charAt(0).toUpperCase()}</div>
+                                <div>
+                                    <div style="font-weight:bold; display:flex; align-items:center;">${user.name} ${badge}</div>
+                                    <div style="font-size:12px; color:#666;">Tap to open chat portal</div>
+                                </div>
+                            </div>
+                            <i class="fa fa-chevron-right" style="color:#333;"></i>
+                        </div>
+                    `;
+                    listContainer.innerHTML += elementMarkup;
+                });
+            });
+        }
+
+        window.initiateDirectMessage = function(targetUid) {
+            activeChatUserId = targetUid;
+            const targetMeta = loadedUsersCache[targetUid] || { name: "User Portal" };
+            document.getElementById('dm-header-title').innerHTML = `${targetMeta.name} ${targetMeta.verified ? "<span class='verified-badge'><i class='fa-solid fa-circle-check'></i></span>" : ""}`;
+            document.getElementById('dm-header-avatar').innerText = targetMeta.name.charAt(0).toUpperCase();
+            document.getElementById('dm-modal').classList.remove('hidden');
+            
+            const channelId = currentUserProfile.uid < targetUid ? `${currentUserProfile.uid}_${targetUid}` : `${targetUid}_${currentUserProfile.uid}`;
+            
+            onValue(ref(db, `messages/${channelId}`), (msgSnapshot) => {
+                const msgsContainer = document.getElementById('dm-messages-container');
+                msgsContainer.innerHTML = "";
+                const data = msgSnapshot.val();
+                if (data) {
+                    Object.keys(data).forEach(mId => {
+                        const m = data[mId];
+                        const sideClass = m.sender === currentUserProfile.uid ? 'sent' : 'received';
+                        msgsContainer.innerHTML += `<div class="msg-bubble ${sideClass}">${m.body}</div>`;
+                    });
+                    msgsContainer.scrollTop = msgsContainer.scrollHeight;
+                }
+            });
+        };
+
+        window.closeChatWindow = function() {
+            document.getElementById('dm-modal').classList.add('hidden');
+        };
+
+        window.dispatchDirectMessage = function() {
+            const field = document.getElementById('dm-text-input');
+            const plaintext = field.value.trim();
+            if (!plaintext || !activeChatUserId) return;
+
+            const channelId = currentUserProfile.uid < activeChatUserId ? `${currentUserProfile.uid}_${activeChatUserId}` : `${activeChatUserId}_${currentUserProfile.uid}`;
+            const messagePayload = {
+                sender: currentUserProfile.uid,
+                body: plaintext,
+                timestamp: Date.now()
+            };
+
+            push(ref(db, `messages/${channelId}`), messagePayload).then(() => {
+                field.value = "";
+                if (activeChatUserId === 'pain_ai_agent') {
+                    executeArtificialIntelligenceResponseTransaction(channelId, plaintext);
+                }
+            });
+        };
+
+        function executeArtificialIntelligenceResponseTransaction(channelId, userQuery) {
+            setTimeout(() => {
+                let aiResponse = "I am processing metrics within Pain's automated community architecture system.";
+                const normalised = userQuery.toLowerCase();
+                
+                if (normalised.includes("who created you")) {
+                    aiResponse = "Pain created me to help assist his fans.";
+                } else if (normalised.includes("hello") || normalised.includes("hi")) {
+                    aiResponse = "Welcome to Pain Hub. Optimization pathways are fully operational.";
+                } else if (normalised.includes("help") || normalised.includes("commands")) {
+                    aiResponse = "My architecture accepts inputs querying creator parameters, verification requests, and environment metrics.";
+                } else {
+                    aiResponse = "Acknowledged. I am standard conversational AI initialized inside your environment network. I am active and ready to respond to all inquiries.";
+                }
+
+                push(ref(db, `messages/${channelId}`), {
+                    sender: 'pain_ai_agent',
+                    body: aiResponse,
+                    timestamp: Date.now()
+                });
+            }, 800);
+        }
+
+        window.saveAccountSettings = function() {
+            const targetName = document.getElementById('settings-name').value.trim();
+            const targetPass = document.getElementById('settings-pass').value;
+
+            if (targetName) {
+                update(ref(db, `users/${currentUserProfile.uid}`), { name: targetName })
+                    .then(() => alert("Display profile successfully reassigned."));
+            }
+
+            if (targetPass) {
+                if (targetPass.length < 6) return alert("Security constraints demand a 6 character password layout minimum.");
+                updatePassword(auth.currentUser, targetPass)
+                    .then(() => {
+                        alert("Account authentication password successfully changed.");
+                        document.getElementById('settings-pass').value = "";
+                    }).catch(err => alert("Password Rejection: " + err.message));
+            }
+        };
+
+        seedSystemArtificialIntelligenceAgent();
+    </script>
 </body>
 </html>
