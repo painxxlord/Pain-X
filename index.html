@@ -4,121 +4,54 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PainXHub | Home</title>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <style>
         :root { --red: #cc0000; --dark-bg: #05070a; --card-bg: rgba(17, 24, 39, 0.95); }
-        body { background-color: var(--dark-bg); color: #f3f4f6; font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; }
+        body { background-color: var(--dark-bg); color: #f3f4f6; font-family: sans-serif; margin: 0; padding: 0; }
         .hidden { display: none !important; }
         .flex-center { display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .card { background: var(--card-bg); border: 2px solid var(--red); padding: 30px; border-radius: 16px; text-align: center; box-shadow: 0 8px 32px rgba(153, 0, 0, 0.3); width: 100%; max-width: 400px; box-sizing: border-box; }
-        .input-wrapper { position: relative; margin-bottom: 16px; }
-        .input-box { width: 100%; background: #0b111e; border: 1px solid var(--red); color: white; padding: 14px; border-radius: 8px; box-sizing: border-box; font-size: 14px; outline: none; }
-        .eye-icon { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #9ca3af; font-size: 18px; }
-        .btn { background: var(--red); color: white; padding: 14px; border: none; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; margin-top: 10px; }
-        .btn:hover { background: #ff0000; }
-        .switch-form { margin-top: 20px; font-size: 13px; color: #9ca3af; }
-        .switch-form span { color: var(--red); cursor: pointer; font-weight: bold; }
-        header { background: #0b111e; border-bottom: 2px solid var(--red); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
-        .logo { font-size: 20px; font-weight: bold; color: white; }
-        .logo span { color: var(--red); }
-        .feed-layout { max-width: 600px; margin: 20px auto; padding: 0 15px; padding-bottom: 100px; }
-        .creator-card { background: #0d1527; border: 1px solid var(--red); border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 20px; }
-        .avatar-large { width: 90px; height: 90px; border-radius: 50%; border: 3px solid var(--red); object-fit: cover; }
-        .social-row { display: flex; justify-content: center; gap: 20px; margin-top: 15px; }
-        .social-icon { font-size: 28px; text-decoration: none; }
-        .post-creator { background: var(--card-bg); border: 1px solid #1f2937; border-radius: 12px; padding: 15px; margin-bottom: 25px; }
-        .post-input { width: 100%; background: #0b111e; border: 1px solid #374151; border-radius: 8px; color: white; padding: 12px; box-sizing: border-box; resize: none; min-height: 60px; font-family: inherit; margin-bottom: 10px; outline: none; }
-        .timeline-post { background: var(--card-bg); border: 1px solid #1f2937; border-radius: 12px; padding: 15px; margin-bottom: 20px; }
-        .post-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-        .avatar-small { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; background: #374151; }
-        .post-author { font-weight: bold; color: white; }
-        .post-body { font-size: 15px; line-height: 1.5; color: #e5e7eb; margin-bottom: 12px; word-break: break-word; }
-        .post-img { width: 100%; border-radius: 8px; margin-top: 8px; display: block; max-height: 450px; object-fit: cover; }
-        .post-actions { border-top: 1px solid #1f2937; padding-top: 10px; }
-        .action-btn { background: none; border: none; color: #9ca3af; cursor: pointer; font-size: 14px; }
-        .action-btn.liked { color: var(--red); font-weight: bold; }
-        #aiWidget { position: fixed; bottom: 20px; right: 20px; z-index: 1000; }
-        .ai-fab { width: 60px; height: 60px; background: var(--red); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 24px; cursor: pointer; border: 2px solid white; }
-        .ai-window { position: fixed; bottom: 90px; right: 20px; width: 320px; height: 400px; background: #0b111e; border: 2px solid var(--red); border-radius: 12px; display: flex; flex-direction: column; }
-        .ai-header { background: var(--red); padding: 12px; font-weight: bold; display: flex; justify-content: space-between; }
-        .ai-content { flex: 1; padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; font-size: 14px; }
-        .msg { max-width: 80%; padding: 8px 12px; border-radius: 8px; }
-        .msg.user { background: #1f2937; align-self: flex-end; }
-        .msg.bot { background: rgba(204,0,0,0.2); align-self: flex-start; border: 1px solid rgba(204,0,0,0.4); }
-        .ai-footer { padding: 10px; display: flex; gap: 8px; border-top: 1px solid #1f2937; }
-        .ai-input { flex: 1; background: #151f32; border: 1px solid #374151; color: white; border-radius: 6px; padding: 8px; outline: none; }
+        .card { background: var(--card-bg); border: 2px solid var(--red); padding: 30px; border-radius: 16px; text-align: center; width: 90%; max-width: 400px; }
+        .input-box { width: 100%; background: #0b111e; border: 1px solid var(--red); color: white; padding: 14px; border-radius: 8px; margin-bottom: 12px; box-sizing: border-box; }
+        .btn { background: var(--red); color: white; padding: 14px; border: none; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        header { background: #0b111e; border-bottom: 2px solid var(--red); padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .feed-layout { max-width: 600px; margin: 20px auto; padding: 0 15px; }
+        .post-input { width: 100%; background: #0b111e; border: 1px solid #374151; color: white; padding: 12px; border-radius: 8px; margin-bottom: 10px; }
+        .timeline-post { background: var(--card-bg); border: 1px solid #1f2937; padding: 15px; border-radius: 12px; margin-bottom: 20px; }
     </style>
 </head>
 <body>
 
     <div id="gatewaySection" class="flex-center">
-        <div id="authBox" class="card">
+        <div class="card">
             <h2 id="authTitle">Join the Akatsuki</h2>
             <form id="authForm">
                 <div id="registerFields">
-                    <div class="input-wrapper"><input type="text" id="authFirstName" placeholder="First Name" class="input-box"></div>
-                    <div class="input-wrapper"><input type="text" id="authLastName" placeholder="Last Name" class="input-box"></div>
+                    <input type="text" id="authFirstName" placeholder="First Name" class="input-box">
+                    <input type="text" id="authLastName" placeholder="Last Name" class="input-box">
                 </div>
-                <div class="input-wrapper"><input type="email" id="authEmail" placeholder="Email Address" class="input-box" required></div>
-                <div class="input-wrapper">
-                    <input type="password" id="authPassword" placeholder="Password" class="input-box" required>
-                    <span class="eye-icon" id="togglePassword">👁️</span>
-                </div>
+                <input type="email" id="authEmail" placeholder="Email" class="input-box" required>
+                <input type="password" id="authPassword" placeholder="Password" class="input-box" required>
                 <button type="submit" id="submitBtn" class="btn">Enter Hub Space</button>
             </form>
-            <div class="switch-form" id="formSwitchText">Already a member? <span id="switchBtn">Log In</span></div>
-        </div>
-
-        <div id="verifyBox" class="card hidden">
-            <h2>Verify Email</h2>
-            <div class="input-wrapper"><input type="text" id="verificationCodeInput" placeholder="000000" class="input-box" maxlength="6" style="text-align:center; font-size: 22px; letter-spacing: 4px;"></div>
-            <button id="verifyBtn" class="btn">Activate</button>
+            <p style="cursor:pointer; color:var(--red); font-size:13px;" id="switchBtn">Already a member? Log In</p>
         </div>
     </div>
 
     <div id="dashboardSection" class="hidden">
         <header>
-            <div class="logo">Pain<span>X</span>Hub</div>
-            <button class="btn" id="logoutBtn" style="margin:0; width:auto; padding:8px 15px; font-size:12px;">Logout</button>
+            <div style="font-weight:bold;">Pain<span>X</span>Hub</div>
+            <button class="btn" id="logoutBtn" style="width:auto; padding:5px 15px;">Logout</button>
         </header>
         <div class="feed-layout">
-            <div class="creator-card">
-                <img src="https://via.placeholder.com/150" id="creatorAvatar" class="avatar-large">
-                <h3 style="color: white; margin: 10px 0 5px 0;">Pain <span style="color:var(--red);">🔴 Verified</span></h3>
-                <p id="creatorBio" style="margin: 0; font-size: 13px; color: #9ca3af;"></p>
-                <div style="font-size: 13px; margin-top: 8px; color: #e5e7eb;">
-                    <span style="margin-right: 15px;"><strong id="creatorFollowers">0</strong> Followers</span>
-                    <span><strong id="creatorLikes">0</strong> Likes</span>
-                </div>
-                <div class="social-row">
-                    <a id="linkYT" href="#" target="_blank" class="social-icon">📺</a>
-                    <a id="linkTT" href="#" target="_blank" class="social-icon">🎵</a>
-                </div>
-            </div>
-            <div class="post-creator">
-                <textarea id="postText" class="post-input" placeholder="What's on your mind?"></textarea>
-                <input type="text" id="postImgUrl" class="input-box" placeholder="Direct Image URL (Optional)...">
-                <button id="submitPostBtn" class="btn" style="margin:0; padding:10px;">Publish Post</button>
-            </div>
-            <div id="timelineStream"></div>
-        </div>
-        <div id="aiWidget">
-            <div class="ai-fab" id="aiFabBtn">👁️</div>
-            <div class="ai-window hidden" id="aiWindow">
-                <div class="ai-header"><span>Pain AI</span><span id="aiCloseBtn" style="cursor:pointer;">✕</span></div>
-                <div class="ai-content" id="aiChatLogs"><div class="msg bot">Speak. Tell me your queries.</div></div>
-                <div class="ai-footer">
-                    <input type="text" id="aiMsgInput" class="ai-input" placeholder="Ask anything...">
-                    <button id="aiSendBtn" class="btn" style="margin:0; width:auto; padding: 8px 15px;">Send</button>
-                </div>
-            </div>
+            <textarea id="postText" class="post-input" placeholder="What's on your mind?"></textarea>
+            <button id="submitPostBtn" class="btn">Publish Post</button>
+            <div id="timelineStream" style="margin-top:20px;"></div>
         </div>
     </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
-    import { getDatabase, ref, set, get, update, onValue, push } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+    import { getDatabase, ref, set, push, onValue } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyAN4oKAF6Od2u6aMOBk8G9u4Xa2QyRFWio",
@@ -126,146 +59,54 @@
         projectId: "painakatsukihub-33fa6",
         storageBucket: "painakatsukihub-33fa6.firebasestorage.app",
         messagingSenderId: "327168157848",
-        appId: "1:327168157848:web:49f6f22ed027cbb48608ed",
-        measurementId: "G-BMWZZVHTWB"
+        appId: "1:327168157848:web:49f6f22ed027cbb48608ed"
     };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getDatabase(app);
 
-    emailjs.init("YOUR_PUBLIC_KEY");
-
-    let isLoginMode = false, generatedCode = "", pendingUserData = null, currentSessionUser = null;
-
-    document.getElementById('togglePassword').addEventListener('click', function() {
-        const pInput = document.getElementById('authPassword');
-        pInput.type = pInput.type === 'password' ? 'text' : 'password';
-        this.textContent = pInput.type === 'password' ? '👁️' : '🕶️';
-    });
-
-    document.getElementById('switchBtn').addEventListener('click', function() {
-        isLoginMode = !isLoginMode;
-        document.getElementById('authTitle').textContent = isLoginMode ? "Welcome Back" : "Join the Akatsuki";
-        document.getElementById('registerFields').classList.toggle('hidden', isLoginMode);
-        document.getElementById('submitBtn').textContent = isLoginMode ? "Log In" : "Enter Hub Space";
-        this.textContent = isLoginMode ? "Sign Up" : "Log In";
-    });
-
-    document.getElementById('authForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const email = document.getElementById('authEmail').value.trim();
-        const password = document.getElementById('authPassword').value;
-        if (isLoginMode) {
-            try { await signInWithEmailAndPassword(auth, email, password); } catch (err) { alert(err.message); }
-        } else {
-            generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
-            pendingUserData = { firstName: document.getElementById('authFirstName').value, lastName: document.getElementById('authLastName').value, email, password };
-            emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', { to_email: email, to_name: pendingUserData.firstName, verification_code: generatedCode })
-            .then(() => {
-                document.getElementById('authBox').classList.add('hidden');
-                document.getElementById('verifyBox').classList.remove('hidden');
-            }).catch(err => alert("Email error: " + JSON.stringify(err)));
-        }
-    });
-
-    document.getElementById('verifyBtn').addEventListener('click', async () => {
-        if (document.getElementById('verificationCodeInput').value.trim() === generatedCode) {
-            try {
-                const cred = await createUserWithEmailAndPassword(auth, pendingUserData.email, pendingUserData.password);
-                await set(ref(db, 'users/' + cred.user.uid), { firstName: pendingUserData.firstName, lastName: pendingUserData.lastName, email: pendingUserData.email, uid: cred.user.uid, avatar: "https://via.placeholder.com/150", verified: false, isBanned: false });
-                await set(ref(db, `followers/creatorUid/${cred.user.uid}`), true);
-                alert("Account verified!"); location.reload();
-            } catch (err) { alert(err.message); }
-        } else { alert("Wrong code."); }
-    });
-
-    onAuthStateChanged(auth, async (user) => {
-        if (user) {
-            const snap = await get(ref(db, 'users/' + user.uid));
-            const uData = snap.val();
-            if (uData && uData.isBanned) { alert("Account Banned."); await signOut(auth); location.reload(); return; }
-            currentSessionUser = uData;
-            document.getElementById('gatewaySection').classList.add('hidden');
-            document.getElementById('dashboardSection').classList.remove('hidden');
-            syncCreatorProfile(); listenFeed();
-        } else {
-            document.getElementById('gatewaySection').classList.remove('hidden');
-            document.getElementById('dashboardSection').classList.add('hidden');
-        }
-    });
-
-    function syncCreatorProfile() {
-        onValue(ref(db, 'creatorSettings'), (s) => {
-            const d = s.val() || { bio: "Official Creator", avatar: "https://via.placeholder.com/150", yt: "#", tk: "#" };
-            document.getElementById('creatorBio').textContent = d.bio;
-            document.getElementById('creatorAvatar').src = d.avatar;
-            document.getElementById('linkYT').href = d.yt;
-            document.getElementById('linkTT').href = d.tk;
-        });
-        onValue(ref(db, 'followers/creatorUid'), (s) => { document.getElementById('creatorFollowers').textContent = s.exists() ? Object.keys(s.val()).length : 0; });
-        onValue(ref(db, 'posts'), (s) => {
-            let L = 0; if (s.exists()) { s.forEach(c => { const p = c.val(); if (p.authorUid === 'creatorUid' && p.likes) L += Object.keys(p.likes).length; }); }
-            document.getElementById('creatorLikes').textContent = L;
-        });
-    }
-
-    document.getElementById('submitPostBtn').addEventListener('click', async () => {
-        const text = document.getElementById('postText').value.trim();
-        const img = document.getElementById('postImgUrl').value.trim();
-        if (!text && !img) return;
-        const flag = ["nude", "porn", "naked", "xxx"].some(t => (text + " " + img).toLowerCase().includes(t));
-        const payload = { authorName: currentSessionUser.firstName + " " + currentSessionUser.lastName, authorUid: currentSessionUser.uid, authorAvatar: currentSessionUser.avatar, bodyText: text, mediaUrl: img, timestamp: Date.now(), flagged: flag };
-        if (flag) { await push(ref(db, 'flaggedQueue'), payload); alert("Sent to admin inspection."); }
-        else { await push(ref(db, 'posts'), payload); }
-        document.getElementById('postText').value = ""; document.getElementById('postImgUrl').value = "";
-    });
-
-    function listenFeed() {
-        onValue(ref(db, 'posts'), (s) => {
-            const container = document.getElementById('timelineStream'); container.innerHTML = "";
-            if (!s.exists()) return;
-            let arr = []; s.forEach(c => { let p = c.val(); p.id = c.key; arr.unshift(p); });
-            arr.forEach(p => {
-                if (p.flagged) return;
-                const likes = p.likes ? Object.keys(p.likes).length : 0;
-                const isL = p.likes && p.likes[currentSessionUser.uid] ? "liked" : "";
-                const imgTag = p.mediaUrl ? `<img src="${p.mediaUrl}" class="post-img">` : "";
-                container.innerHTML += `
-                    <div class="timeline-post">
-                        <div class="post-header"><img src="${p.authorAvatar}" class="avatar-small"><div class="post-author">${p.authorName} ${p.authorUid === 'creatorUid' ? '<span style="color:var(--red);">🔴 Creator</span>' : ''}</div></div>
-                        <div class="post-body">${p.bodyText}</div>${imgTag}
-                        <div class="post-actions"><button class="action-btn ${isL}" onclick="toggleLike('${p.id}')">❤️ Like (${likes})</button></div>
-                    </div>`;
-            });
-        });
-    }
-
-    window.toggleLike = async function(id) {
-        const r = ref(db, `posts/${id}/likes/${currentSessionUser.uid}`);
-        const s = await get(r); if (s.exists()) await set(r, null); else await set(r, true);
+    let isLogin = false;
+    document.getElementById('switchBtn').onclick = () => {
+        isLogin = !isLogin;
+        document.getElementById('registerFields').classList.toggle('hidden', isLogin);
+        document.getElementById('authTitle').textContent = isLogin ? "Log In" : "Join the Akatsuki";
+        document.getElementById('submitBtn').textContent = isLogin ? "Log In" : "Enter Hub Space";
     };
 
-    document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth).then(() => location.reload()));
-    document.getElementById('aiFabBtn').addEventListener('click', () => document.getElementById('aiWindow').classList.toggle('hidden'));
-    document.getElementById('aiCloseBtn').addEventListener('click', () => document.getElementById('aiWindow').classList.add('hidden'));
-    document.getElementById('aiSendBtn').addEventListener('click', async () => {
-        const input = document.getElementById('aiMsgInput'); const q = input.value.trim(); if (!q) return;
-        appendMsg(q, 'user'); input.value = "";
-        if (["who created you", "who made you", "creator"].some(t => q.toLowerCase().includes(t))) {
-            setTimeout(() => appendMsg("Pain created me to help assist his fans.", 'bot'), 800);
-        } else {
-            setTimeout(() => appendMsg("This world shall know peace.", 'bot'), 800);
+    document.getElementById('authForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('authEmail').value;
+        const pass = document.getElementById('authPassword').value;
+        try {
+            if(isLogin) await signInWithEmailAndPassword(auth, email, pass);
+            else {
+                const cred = await createUserWithEmailAndPassword(auth, email, pass);
+                await set(ref(db, 'users/' + cred.user.uid), { name: document.getElementById('authFirstName').value + " " + document.getElementById('authLastName').value });
+            }
+        } catch(err) { alert(err.message); }
+    };
+
+    document.getElementById('submitPostBtn').onclick = async () => {
+        const text = document.getElementById('postText').value;
+        if(text) {
+            await push(ref(db, 'posts'), { text, author: auth.currentUser.uid, time: Date.now() });
+            document.getElementById('postText').value = "";
+        }
+    };
+
+    onAuthStateChanged(auth, user => {
+        if(user) {
+            document.getElementById('gatewaySection').classList.add('hidden');
+            document.getElementById('dashboardSection').classList.remove('hidden');
+            onValue(ref(db, 'posts'), snap => {
+                const stream = document.getElementById('timelineStream'); stream.innerHTML = "";
+                snap.forEach(c => { stream.innerHTML += `<div class="timeline-post">${c.val().text}</div>`; });
+            });
         }
     });
 
-    function appendMsg(t, s) {
-        const logs = document.getElementById('aiChatLogs'); const d = document.createElement('div');
-        d.className = `msg ${s}`; d.textContent = t; logs.appendChild(d); logs.scrollTop = logs.scrollHeight;
-    }
+    document.getElementById('logoutBtn').onclick = () => signOut(auth).then(() => location.reload());
 </script>
 </body>
 </html>
-
-
-        
