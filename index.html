@@ -5,22 +5,80 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Global Social Hub</title>
     <style>
-        body { background-color: #0b111e; color: #f3f4f6; font-family: sans-serif; margin: 0; padding: 0; display: flex; justify-content: center; min-height: 100vh; }
-        .container { width: 100%; max-width: 450px; padding: 20px; box-sizing: border-box; }
-        .card { background-color: #162235; border: 1px solid #243752; padding: 20px; border-radius: 16px; margin-bottom: 20px; text-align: center; }
+        /* Akatsuki Inspired Red Cloud Background Layer */
+        body { 
+            background-color: #05070a; 
+            color: #f3f4f6; 
+            font-family: sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            display: flex; 
+            justify-content: center; 
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+            /* Creating custom seamless red clouds using CSS radial/linear gradients */
+            background-image: 
+                radial-gradient(circle at 20% 30%, #990000 0%, #cc0000 4%, transparent 12%),
+                radial-gradient(circle at 24% 33%, #990000 0%, #cc0000 6%, transparent 15%),
+                radial-gradient(circle at 17% 35%, #990000 0%, #cc0000 5%, transparent 12%),
+                radial-gradient(circle at 80% 75%, #990000 0%, #cc0000 4%, transparent 12%),
+                radial-gradient(circle at 84% 78%, #990000 0%, #cc0000 6%, transparent 15%),
+                radial-gradient(circle at 77% 80%, #990000 0%, #cc0000 5%, transparent 12%);
+            background-size: 400px 400px;
+        }
+
+        /* Subtle white borders around the clouds to mimic the anime style cloak */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: -1;
+            opacity: 0.7;
+            background-image: 
+                radial-gradient(circle at 20% 30%, transparent 11.5%, #ffffff 12%, transparent 12.5%),
+                radial-gradient(circle at 24% 33%, transparent 14.5%, #ffffff 15%, transparent 15.5%),
+                radial-gradient(circle at 80% 75%, transparent 11.5%, #ffffff 12%, transparent 12.5%),
+                radial-gradient(circle at 84% 78%, transparent 14.5%, #ffffff 15%, transparent 15.5%);
+            background-size: 400px 400px;
+            pointer-events: none;
+        }
+
+        .container { width: 100%; max-width: 450px; padding: 20px; box-sizing: border-box; z-index: 2; }
+        
+        /* Glassmorphism Cards: Dark semi-transparent style so clouds peek through */
+        .card { 
+            background-color: rgba(17, 24, 39, 0.9); 
+            border: 2px solid #cc0000; 
+            padding: 20px; 
+            border-radius: 16px; 
+            margin-bottom: 20px; 
+            text-align: center;
+            box-shadow: 0 8px 32px 0 rgba(153, 0, 0, 0.2);
+        }
+        
         .auth-box { display: block; }
         .dashboard { display: none; }
-        h2 { margin-top: 0; font-size: 20px; color: #ffffff; }
+        h2 { margin-top: 0; font-size: 20px; color: #ffffff; text-transform: uppercase; letter-spacing: 1px; }
         p { color: #9ca3af; font-size: 14px; margin-bottom: 20px; }
-        .input-box { width: 100%; background-color: #0b111e; border: 1px solid #243752; color: white; padding: 12px; border-radius: 8px; margin-bottom: 12px; box-sizing: border-box; font-size: 14px; }
-        .btn { background-color: #111; color: white; padding: 12px; border: none; border-radius: 8px; width: 100%; font-weight: bold; font-size: 14px; cursor: pointer; margin-bottom: 10px; }
-        .btn-google { background-color: #e04f33; }
-        .btn-task { background-color: #000000; border: 1px solid #333; margin: 5px 0; color: #fff; display: inline-block; width: 45%; padding: 10px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 13px; }
+        
+        .input-box { width: 100%; background-color: #0b111e; border: 1px solid #cc0000; color: white; padding: 12px; border-radius: 8px; margin-bottom: 12px; box-sizing: border-box; font-size: 14px; }
+        .input-box:focus { border-color: #ffffff; outline: none; }
+        
+        /* Akatsuki Black & Red Theme Buttons */
+        .btn { background-color: #cc0000; color: white; padding: 12px; border: none; border-radius: 8px; width: 100%; font-weight: bold; font-size: 14px; cursor: pointer; margin-bottom: 10px; text-transform: uppercase; transition: 0.3s; }
+        .btn:hover { background-color: #990000; }
+        .btn-google { background-color: #ffffff; color: #000; }
+        .btn-google:hover { background-color: #e5e7eb; }
+        
+        .btn-task { background-color: #000000; border: 1px solid #cc0000; margin: 5px 0; color: #fff; display: inline-block; width: 45%; padding: 10px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 13px; }
         .btn-task.youtube { background-color: #ff0000; border: none; }
-        .stat-num { font-size: 32px; font-weight: bold; color: #10b981; margin: 10px 0; }
-        .code-display { background-color: #0b111e; border: 1px solid #243752; padding: 10px; border-radius: 8px; font-family: monospace; font-size: 16px; color: #3b82f6; font-weight: bold; display: inline-block; letter-spacing: 1px; }
-        .feed-container { background-color: #111c2c; border-radius: 8px; padding: 15px; text-align: left; border-left: 4px solid #3b82f6; }
-        .feed-title { font-weight: bold; font-size: 14px; color: #fff; margin-bottom: 5px; }
+        
+        .stat-num { font-size: 32px; font-weight: bold; color: #cc0000; margin: 10px 0; text-shadow: 0 0 10px rgba(204, 0, 0, 0.4); }
+        .code-display { background-color: #05070a; border: 1px solid #cc0000; padding: 10px; border-radius: 8px; font-family: monospace; font-size: 16px; color: #ffffff; font-weight: bold; display: inline-block; letter-spacing: 1px; }
+        
+        .feed-container { background-color: rgba(5, 7, 10, 0.8); border-radius: 8px; padding: 15px; text-align: left; border-left: 4px solid #cc0000; }
+        .feed-title { font-weight: bold; font-size: 14px; color: #fff; margin-bottom: 5px; text-transform: uppercase; }
         .feed-content { font-size: 13px; color: #9ca3af; }
     </style>
 </head>
@@ -30,8 +88,8 @@
         
         <!-- AUTH SECTION -->
         <div id="authBox" class="card auth-box">
-            <h2>ACCESS GLOBAL SOCIAL HUB</h2>
-            <p>Sign in to unlock your hub dashboard</p>
+            <h2>Access Social Hub</h2>
+            <p>Sign in to unlock your administrative dashboard</p>
             <form id="loginForm">
                 <input type="email" id="authEmail" placeholder="Email Address" class="input-box" required>
                 <input type="password" id="authPassword" placeholder="Password" class="input-box" required>
@@ -56,7 +114,7 @@
             </div>
 
             <div class="card">
-                <div style="color: #9ca3af; font-size: 13px;">YOUR REFERRAL STATUS</div>
+                <div style="color: #9ca3af; font-size: 13px; font-weight: bold;">YOUR REFERRAL STATUS</div>
                 <div style="color: #9ca3af; font-size: 11px;">Estimated Referral Balance</div>
                 <p class="stat-num" id="userBalance">₦0</p>
                 <div style="color: #9ca3af; font-size: 12px; margin-bottom: 5px;">Your Code:</div>
@@ -72,7 +130,7 @@
                 </div>
             </div>
 
-            <button id="logoutBtn" class="btn" style="background-color: #ef4444;">Log Out</button>
+            <button id="logoutBtn" class="btn" style="background-color: #333333;">Log Out</button>
         </div>
 
     </div>
@@ -99,7 +157,6 @@
 
   let currentUserUid = null;
 
-  // Track Auth State Change
   onAuthStateChanged(auth, (user) => {
     if (user) {
       currentUserUid = user.uid;
@@ -113,7 +170,6 @@
     }
   });
 
-  // Handle Form Signup / Login
   document.getElementById('loginForm').addEventListener('submit', function(e) {
     e.preventDefault();
     const email = document.getElementById('authEmail').value;
@@ -134,7 +190,6 @@
       });
   });
 
-  // Handle Google Sign In
   document.getElementById('googleBtn').addEventListener('click', () => {
     signInWithPopup(auth, googleProvider)
       .then((result) => {
@@ -147,7 +202,6 @@
       }).catch((err) => alert(err.message));
   });
 
-  // Create database profile for brand new signups
   function createNewUserRecord(uid, email, refCodeUsed) {
     const generatedCode = 'PAIN-' + Math.random().toString(36).substring(2, 6).toUpperCase();
     
@@ -160,14 +214,12 @@
     };
 
     set(ref(db, `users/${uid}`), userData).then(() => {
-      // If a code was passed, process the bonus using transactional security
       if (refCodeUsed) {
         processReferralBonus(refCodeUsed);
       }
     });
   }
 
-  // Handle Referral Rewards with 3-use limits securely
   function processReferralBonus(targetCode) {
     get(ref(db, 'users')).then((snapshot) => {
       if (snapshot.exists()) {
@@ -183,7 +235,6 @@
 
         if (ownerUid) {
           if (currentUses < 3) {
-            // Reward the owner +1000 and increment the count
             runTransaction(ref(db, `users/${ownerUid}`), (user) => {
               if (user) {
                 user.balance = (user.balance || 0) + 1000;
@@ -199,25 +250,30 @@
     });
   }
 
-  // Sync dashboard counters live
   function setupUserDashboard(uid) {
     onValue(ref(db, `users/${uid}`), (snapshot) => {
       if (snapshot.exists()) {
         const data = snapshot.val();
+        
+        // Anti-break feature fallback setup for old test profiles!
+        let code = data.referralCode;
+        if (!code) {
+          code = 'PAIN-' + Math.random().toString(36).substring(2, 6).toUpperCase();
+          set(ref(db, `users/${uid}/referralCode`), code);
+        }
+
         document.getElementById('userBalance').innerText = '₦' + (data.balance || 0).toLocaleString();
-        document.getElementById('userCode').innerText = data.referralCode || 'NO_CODE';
+        document.getElementById('userCode').innerText = code;
         
         const usesLeft = 3 - (data.usesCount || 0);
         document.getElementById('usesLeft').innerText = `${usesLeft} uses remaining (Max 3)`;
 
-        // Check if button has been clicked already
         if(data.tasks?.tiktok) document.getElementById('tiktokBtn').style.opacity = '0.5';
         if(data.tasks?.youtube) document.getElementById('youtubeBtn').style.opacity = '0.5';
       }
     });
   }
 
-  // Listen for Task clicks & Reward 2,000 Naira
   document.getElementById('tiktokBtn').addEventListener('click', () => {
     if (!currentUserUid) return;
     const userRef = ref(db, `users/${currentUserUid}`);
@@ -252,7 +308,6 @@
     });
   });
 
-  // Pull Admin broadcast feed live
   onValue(ref(db, 'posts'), (snapshot) => {
     if (snapshot.exists()) {
       const postsObj = snapshot.val();
@@ -268,7 +323,6 @@
     }
   });
 
-  // Sign out functionality
   document.getElementById('logoutBtn').addEventListener('click', () => {
     signOut(auth).catch((err) => alert(err.message));
   });
