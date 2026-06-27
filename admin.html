@@ -2,96 +2,48 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PainXHub | Admin Panel</title>
+    <title>Admin Control</title>
     <style>
-        :root { --red: #cc0000; --dark-bg: #05070a; --card-bg: #0b111e; }
-        body { background: var(--dark-bg); color: #f3f4f6; font-family: sans-serif; margin: 20px; }
-        .panel { background: var(--card-bg); border: 2px solid var(--red); border-radius: 12px; padding: 20px; margin-bottom: 25px; }
-        h2 { color: white; margin-top: 0; border-bottom: 1px solid var(--red); padding-bottom: 8px; text-transform: uppercase; font-size: 16px; }
-        .input-box { width: 100%; background: #151f32; border: 1px solid #374151; color: white; padding: 12px; border-radius: 6px; box-sizing: border-box; margin-bottom: 12px; outline: none; }
-        .btn { background: var(--red); color: white; padding: 12px 20px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
-        .alert-item { background: rgba(255,0,0,0.1); border: 1px dashed var(--red); padding: 15px; border-radius: 8px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+        body { background: #05070a; color: white; font-family: sans-serif; padding: 20px; }
+        .card { background: #111827; border: 1px solid #cc0000; padding: 15px; margin-bottom: 10px; }
     </style>
 </head>
 <body>
+    <h1>Admin Control Panel</h1>
+    <div id="userList"><h3>Verify Users</h3></div>
+    <div id="postList"><h3>Moderate Feed</h3></div>
 
-    <h1 style="color: white;">Creator Admin Console</h1>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+        import { getDatabase, ref, onValue, remove, update } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
+        
+        const db = getDatabase(initializeApp({
+            apiKey: "AIzaSyAN4oKAF6Od2u6aMOBk8G9u4Xa2QyRFWio",
+            authDomain: "painakatsukihub-33fa6.firebaseapp.com",
+            projectId: "painakatsukihub-33fa6",
+            storageBucket: "painakatsukihub-33fa6.firebasestorage.app",
+            messagingSenderId: "327168157848",
+            appId: "1:327168157848:web:49f6f22ed027cbb48608ed"
+        }));
 
-    <div class="panel">
-        <h2>Update Profiles & Social Links</h2>
-        <input type="text" id="adminBio" class="input-box" placeholder="Custom bio bio...">
-        <input type="text" id="adminYT" class="input-box" placeholder="YouTube URL...">
-        <input type="text" id="adminTT" class="input-box" placeholder="TikTok URL...">
-        <button id="saveLinksBtn" class="btn">Update Feed Data</button>
-    </div>
-
-    <div class="panel">
-        <h2>Moderation Flag Radar</h2>
-        <div id="flaggedContainer"><p style="color: #9ca3af;">Radar completely clean.</p></div>
-    </div>
-
-    <div class="panel">
-        <h2>Manual VIP Verification</h2>
-        <input type="text" id="verifyUidInput" class="input-box" placeholder="Paste User UID...">
-        <button id="forceVerifyBtn" class="btn" style="background: #1d9bf0;">Verify Account</button>
-    </div>
-
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-    import { getDatabase, ref, set, update, onValue, remove } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
-
-    const firebaseConfig = {
-        apiKey: "AIzaSyAN4oKAF6Od2u6aMOBk8G9u4Xa2QyRFWio",
-        authDomain: "painakatsukihub-33fa6.firebaseapp.com",
-        projectId: "painakatsukihub-33fa6",
-        storageBucket: "painakatsukihub-33fa6.firebasestorage.app",
-        messagingSenderId: "327168157848",
-        appId: "1:327168157848:web:49f6f22ed027cbb48608ed",
-        measurementId: "G-BMWZZVHTWB"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-
-    document.getElementById('saveLinksBtn').addEventListener('click', async () => {
-        const bio = document.getElementById('adminBio').value.trim();
-        const yt = document.getElementById('adminYT').value.trim();
-        const tk = document.getElementById('adminTT').value.trim();
-        let up = {}; if(bio) up.bio = bio; if(yt) up.yt = yt; if(tk) up.tk = tk;
-        await update(ref(db, 'creatorSettings'), up); alert("Synchronized!");
-    });
-
-    document.getElementById('forceVerifyBtn').addEventListener('click', async () => {
-        const uid = document.getElementById('verifyUidInput').value.trim();
-        if(!uid) return;
-        await update(ref(db, `users/${uid}`), { verified: true });
-        alert("Badge Awarded!"); document.getElementById('verifyUidInput').value = "";
-    });
-
-    onValue(ref(db, 'flaggedQueue'), (s) => {
-        const container = document.getElementById('flaggedContainer'); container.innerHTML = "";
-        if(!s.exists()){ container.innerHTML = `<p style="color:#9ca3af;">Radar completely clean.</p>`; return; }
-        s.forEach((c) => {
-            const k = c.key; const p = c.val();
-            container.innerHTML += `
-                <div class="alert-item">
-                    <div><strong>User:</strong> ${p.authorName}<br><strong>Text:</strong> ${p.bodyText}</div>
-                    <div>
-                        <button class="btn" onclick="banUser('${p.authorUid}', '${k}')" style="padding:6px; font-size:12px;">Ban</button>
-                        <button class="btn" onclick="dismiss('${k}')" style="padding:6px; font-size:12px; background:#374151;">Clear</button>
-                    </div>
-                </div>`;
+        onValue(ref(db, 'users'), snap => {
+            const list = document.getElementById('userList');
+            list.innerHTML = "<h3>Verify Users</h3>";
+            snap.forEach(c => {
+                list.innerHTML += `<div class="card">${c.val().email} 
+                <button onclick="update(ref(db, 'users/${c.key}/verified'), true)">Verify User</button></div>`;
+            });
         });
-    });
 
-    window.banUser = async function(uid, k) {
-        if(confirm("Ban user permanently?")) {
-            await update(ref(db, `users/${uid}`), { isBanned: true });
-            await remove(ref(db, `flaggedQueue/${k}`)); alert("Banned.");
-        }
-    };
-    window.dismiss = async function(k) { await remove(ref(db, `flaggedQueue/${k}`)); };
-</script>
+        onValue(ref(db, 'posts'), snap => {
+            const list = document.getElementById('postList');
+            list.innerHTML = "<h3>Moderate Feed</h3>";
+            snap.forEach(c => {
+                list.innerHTML += `<div class="card">${c.val().text} 
+                <button onclick="remove(ref(db, 'posts/${c.key}'))">Delete</button></div>`;
+            });
+        });
+        window.update = update; window.remove = remove; window.ref = ref; window.db = db;
+    </script>
 </body>
 </html>
