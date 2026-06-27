@@ -3,108 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PainXHub | Home</title>
+    <title>PainXHub | Official</title>
     <style>
-        :root { --red: #cc0000; --dark-bg: #05070a; --card-bg: rgba(17, 24, 39, 0.95); }
-        body { background-color: var(--dark-bg); color: #f3f4f6; font-family: sans-serif; margin: 0; padding: 0; }
+        :root { --red: #cc0000; --dark: #05070a; }
+        body { background: var(--dark); color: white; font-family: sans-serif; margin: 0; }
         .hidden { display: none !important; }
-        .flex-center { display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .card { background: var(--card-bg); border: 2px solid var(--red); padding: 30px; border-radius: 16px; text-align: center; width: 90%; max-width: 400px; }
-        .input-box { width: 100%; background: #0b111e; border: 1px solid var(--red); color: white; padding: 14px; border-radius: 8px; margin-bottom: 12px; box-sizing: border-box; }
-        .btn { background: var(--red); color: white; padding: 14px; border: none; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; text-transform: uppercase; }
-        header { background: #0b111e; border-bottom: 2px solid var(--red); padding: 15px; display: flex; justify-content: space-between; align-items: center; }
-        .feed-layout { max-width: 600px; margin: 20px auto; padding: 0 15px; }
-        .post-input { width: 100%; background: #0b111e; border: 1px solid #374151; color: white; padding: 12px; border-radius: 8px; margin-bottom: 10px; }
-        .timeline-post { background: var(--card-bg); border: 1px solid #1f2937; padding: 15px; border-radius: 12px; margin-bottom: 20px; }
+        .card { background: #111827; border: 1px solid var(--red); padding: 20px; border-radius: 12px; margin: 10px; }
+        .btn { background: var(--red); color: white; padding: 10px; border: none; border-radius: 6px; cursor: pointer; }
+        .badge { color: #3b82f6; font-size: 0.8em; margin-left: 5px; }
     </style>
 </head>
 <body>
 
-    <div id="gatewaySection" class="flex-center">
-        <div class="card">
-            <h2 id="authTitle">Join the Akatsuki</h2>
-            <form id="authForm">
-                <div id="registerFields">
-                    <input type="text" id="authFirstName" placeholder="First Name" class="input-box">
-                    <input type="text" id="authLastName" placeholder="Last Name" class="input-box">
-                </div>
-                <input type="email" id="authEmail" placeholder="Email" class="input-box" required>
-                <input type="password" id="authPassword" placeholder="Password" class="input-box" required>
-                <button type="submit" id="submitBtn" class="btn">Enter Hub Space</button>
-            </form>
-            <p style="cursor:pointer; color:var(--red); font-size:13px;" id="switchBtn">Already a member? Log In</p>
-        </div>
+    <div id="authSection" class="card" style="max-width:400px; margin: 100px auto;">
+        <h2>Join the Akatsuki</h2>
+        <input type="email" id="email" placeholder="Email" style="width:100%; padding:10px; margin-bottom:10px;">
+        <input type="password" id="pass" placeholder="Password" style="width:100%; padding:10px; margin-bottom:10px;">
+        <button id="authBtn" class="btn" style="width:100%;">Enter Hub Space</button>
     </div>
 
-    <div id="dashboardSection" class="hidden">
-        <header>
-            <div style="font-weight:bold;">Pain<span>X</span>Hub</div>
-            <button class="btn" id="logoutBtn" style="width:auto; padding:5px 15px;">Logout</button>
+    <div id="dashSection" class="hidden">
+        <header style="padding:20px; border-bottom:1px solid var(--red);">
+            <h3>PainXHub <span class="badge">✔ Verified</span></h3>
+            <button id="logoutBtn" class="btn">Logout</button>
         </header>
-        <div class="feed-layout">
-            <textarea id="postText" class="post-input" placeholder="What's on your mind?"></textarea>
-            <button id="submitPostBtn" class="btn">Publish Post</button>
-            <div id="timelineStream" style="margin-top:20px;"></div>
+
+        <div style="padding:20px;">
+            <div class="card">
+                <h4>My Profile</h4>
+                <p>Status: Akatsuki Member <span class="badge">✔</span></p>
+            </div>
+
+            <div class="card">
+                <h4>AI Projects & Hub</h4>
+                <div id="aiContent">Loading AI Tools...</div>
+            </div>
+
+            <div class="card">
+                <h4>Live Feed</h4>
+                <textarea id="postText" style="width:100%; background:#000; color:white;"></textarea>
+                <button id="postBtn" class="btn">Publish Post</button>
+                <div id="feed"></div>
+            </div>
         </div>
     </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
-    import { getDatabase, ref, set, push, onValue } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
+    import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
 
-    const firebaseConfig = {
+    const app = initializeApp({
         apiKey: "AIzaSyAN4oKAF6Od2u6aMOBk8G9u4Xa2QyRFWio",
         authDomain: "painakatsukihub-33fa6.firebaseapp.com",
         projectId: "painakatsukihub-33fa6",
         storageBucket: "painakatsukihub-33fa6.firebasestorage.app",
         messagingSenderId: "327168157848",
         appId: "1:327168157848:web:49f6f22ed027cbb48608ed"
-    };
+    });
 
-    const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getDatabase(app);
 
-    let isLogin = false;
-    document.getElementById('switchBtn').onclick = () => {
-        isLogin = !isLogin;
-        document.getElementById('registerFields').classList.toggle('hidden', isLogin);
-        document.getElementById('authTitle').textContent = isLogin ? "Log In" : "Join the Akatsuki";
-        document.getElementById('submitBtn').textContent = isLogin ? "Log In" : "Enter Hub Space";
-    };
-
-    document.getElementById('authForm').onsubmit = async (e) => {
-        e.preventDefault();
-        const email = document.getElementById('authEmail').value;
-        const pass = document.getElementById('authPassword').value;
-        try {
-            if(isLogin) await signInWithEmailAndPassword(auth, email, pass);
-            else {
-                const cred = await createUserWithEmailAndPassword(auth, email, pass);
-                await set(ref(db, 'users/' + cred.user.uid), { name: document.getElementById('authFirstName').value + " " + document.getElementById('authLastName').value });
-            }
-        } catch(err) { alert(err.message); }
-    };
-
-    document.getElementById('submitPostBtn').onclick = async () => {
-        const text = document.getElementById('postText').value;
-        if(text) {
-            await push(ref(db, 'posts'), { text, author: auth.currentUser.uid, time: Date.now() });
-            document.getElementById('postText').value = "";
-        }
+    document.getElementById('authBtn').onclick = () => {
+        const e = document.getElementById('email').value;
+        const p = document.getElementById('pass').value;
+        createUserWithEmailAndPassword(auth, e, p).catch(() => signInWithEmailAndPassword(auth, e, p));
     };
 
     onAuthStateChanged(auth, user => {
         if(user) {
-            document.getElementById('gatewaySection').classList.add('hidden');
-            document.getElementById('dashboardSection').classList.remove('hidden');
+            document.getElementById('authSection').classList.add('hidden');
+            document.getElementById('dashSection').classList.remove('hidden');
+            
+            // Load Feed
             onValue(ref(db, 'posts'), snap => {
-                const stream = document.getElementById('timelineStream'); stream.innerHTML = "";
-                snap.forEach(c => { stream.innerHTML += `<div class="timeline-post">${c.val().text}</div>`; });
+                const feed = document.getElementById('feed');
+                feed.innerHTML = "";
+                snap.forEach(c => feed.innerHTML += `<div class="card">${c.val().text}</div>`);
             });
         }
     });
+
+    document.getElementById('postBtn').onclick = () => {
+        push(ref(db, 'posts'), { text: document.getElementById('postText').value });
+    };
 
     document.getElementById('logoutBtn').onclick = () => signOut(auth).then(() => location.reload());
 </script>
