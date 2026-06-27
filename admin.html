@@ -2,29 +2,41 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Control</title>
+    <title>Admin Panel</title>
     <style>
         body { background: #000; color: white; padding: 20px; font-family: sans-serif; }
-        .user-card { background: #222; padding: 15px; margin-bottom: 10px; border-left: 4px solid #cc0000; }
-        .red-badge { color: white; background: #cc0000; border-radius: 50%; padding: 2px 8px; font-weight: bold; }
+        .user-card { background: #181818; padding: 15px; margin-bottom: 10px; border-left: 4px solid #cc0000; }
     </style>
 </head>
 <body>
-    <h1>Admin Panel</h1>
+    <h1>Verification Center</h1>
     <div id="userList"></div>
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-    import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
-    const db = getDatabase(initializeApp({ /* ADD SAME CONFIG HERE */ }));
-    onValue(ref(db, 'users'), (snap) => {
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    
+    const db = getDatabase(initializeApp({
+        apiKey: "AIzaSyAN4oKAF6Od2u6aMOBk8G9u4Xa2QyRFWio",
+        authDomain: "painakatsukihub-33fa6.firebaseapp.com",
+        databaseURL: "https://painakatsukihub-33fa6-default-rtdb.firebaseio.com",
+        projectId: "painakatsukihub-33fa6",
+        storageBucket: "painakatsukihub-33fa6.firebasestorage.app",
+        messagingSenderId: "327168157848",
+        appId: "1:327168157848:web:49f6f22ed027cbb48608ed"
+    }));
+
+    onValue(ref(db, 'users'), (s) => {
         const list = document.getElementById('userList');
         list.innerHTML = "";
-        snap.forEach((user) => {
-            const u = user.val();
-            list.innerHTML += `<div class="user-card">${u.name} - Followers: ${u.followers} ${u.verified ? '<span class="red-badge">✔</span>' : ''} <button onclick="verify('${user.key}')">Verify User</button></div>`;
+        s.forEach((u) => {
+            const d = u.val();
+            const canVerify = d.followers >= 1000 || d.name === "Pain";
+            list.innerHTML += `<div class="user-card">${d.name} (${d.followers} followers) 
+                ${canVerify ? `<button onclick="window.v('${u.key}')">Verify</button>` : '(Needs 1000 followers)'}
+            </div>`;
         });
     });
-    window.verify = (uid) => update(ref(db, 'users/' + uid), { verified: true });
+    window.v = (uid) => update(ref(db, 'users/' + uid), { verified: true });
 </script>
 </body>
 </html>
