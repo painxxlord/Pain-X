@@ -3,116 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Control Panel</title>
+    <title>Hub Admin Management</title>
     <style>
-        body { background-color: #111827; color: #f3f4f6; font-family: sans-serif; margin: 0; padding: 15px; }
-        .card { background-color: #1f2937; border: 1px solid #374151; padding: 20px; border-radius: 12px; margin-bottom: 15px; }
-        .btn { background-color: #2563eb; color: white; padding: 10px; border: none; border-radius: 8px; width: 100%; font-weight: bold; font-size: 14px; cursor: pointer; }
-        .input-box { width: 100%; background-color: #111827; border: 1px solid #374151; color: white; padding: 10px; border-radius: 8px; margin-bottom: 10px; box-sizing: border-box; }
-        h1 { color: #ffffff; font-size: 24px; margin-bottom: 5px; }
-        h2 { color: #ffffff; font-size: 18px; margin-top: 0; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; text-align: left; }
-        th { font-size: 11px; text-transform: uppercase; color: #9ca3af; padding: 10px 5px; border-bottom: 1px solid #374151; }
-        td { padding: 12px 5px; border-bottom: 1px solid #374151; font-size: 13px; }
+        body { background-color: #05070a; color: #f3f4f6; font-family: sans-serif; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        .admin-container { width: 100%; max-width: 700px; }
+        .card { background-color: rgba(17, 24, 39, 0.9); border: 2px solid #cc0000; padding: 20px; border-radius: 16px; margin-bottom: 20px; box-shadow: 0 8px 32px 0 rgba(153, 0, 0, 0.2); }
+        h2 { margin-top: 0; color: white; text-transform: uppercase; font-size: 18px; letter-spacing: 1px; border-bottom: 1px solid #cc0000; padding-bottom: 8px; }
+        .input-box { width: 100%; background-color: #0b111e; border: 1px solid #cc0000; color: white; padding: 12px; border-radius: 8px; margin-bottom: 12px; box-sizing: border-box; }
+        .btn { background-color: #cc0000; color: white; padding: 12px; border: none; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        .btn:hover { background-color: #990000; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
+        th, td { border: 1px solid #cc0000; padding: 10px; text-align: left; }
+        th { background-color: #0b111e; color: white; }
+        tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.02); }
     </style>
 </head>
 <body>
 
-    <div style="margin-bottom: 20px;">
-        <h1>System Overview [HQ Panel]</h1>
-        <div style="color: #9ca3af; font-size: 13px;">Main Admin: Pain</div>
-    </div>
+    <div class="admin-container">
+        <div class="card">
+            <h2>Broadcast Admin Notification</h2>
+            <form id="postForm">
+                <input type="text" id="postTitle" placeholder="Update Header (e.g. SYSTEM ANNOUNCEMENT)" class="input-box" required>
+                <textarea id="postContent" placeholder="Write message summary details here..." class="input-box" rows="3" required></textarea>
+                <button type="submit" class="btn">Publish Live Feed</button>
+            </form>
+        </div>
 
-    <!-- Post Box -->
-    <div class="card">
-        <h2>Publish to Feed</h2>
-        <form id="publishForm">
-            <input type="text" id="title" placeholder="Post Title (e.g., System Update)" class="input-box" required>
-            <textarea id="content" placeholder="What do you want everyone to see?" rows="3" class="input-box" style="resize: none;" required></textarea>
-            <button type="submit" class="btn">Broadcast Post</button>
-        </form>
-    </div>
-
-    <!-- Live Table Tracker -->
-    <div class="card" style="overflow-x: auto;">
-        <h2>Live Sign-Up & Balance Tracker</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>User Email</th>
-                    <th>Referral Code</th>
-                    <th>Uses (Max 3)</th>
-                    <th>Total Balance</th>
-                </tr>
-            </thead>
-            <tbody id="userTableBody">
-                <tr>
-                    <td colspan="4" style="color: #9ca3af; text-align: center; padding: 15px;">Awaiting secure data sync...</td>
-                </tr>
-            </tbody>
-        </table>
+        <div class="card">
+            <h2>Registered User Database Tracker</h2>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Email Profile</th>
+                            <th>Referral Code</th>
+                            <th>Uses (Max 3)</th>
+                            <th>Total Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userTableBody">
+                        <tr>
+                            <td colspan="4" style="text-align: center; color: #6b7280;">Awaiting connection stream...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+  import { getDatabase, ref, push, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
+  // Securely linked to PainXHub-V2
   const firebaseConfig = {
-    apiKey: "AIzaSyAxTd3U8V8kiJs1QHqJjVmgA1LGjkRhD-E",
-    authDomain: "painxhub-355d5.firebaseapp.com",
-    databaseURL: "https://painxhub-355d5-default-rtdb.firebaseio.com",
-    projectId: "painxhub-355d5",
-    storageBucket: "painxhub-355d5.appspot.com",
-    messagingSenderId: "382129150451",
-    appId: "1:382129150451:web:be5e0cf786968b368b9a86"
+    apiKey: "AIzaSyC0hTnq98FoZvQw7IlJPI0Fgdi1B2IFf18",
+    authDomain: "painxhubv2.firebaseapp.com",
+    projectId: "painxhubv2",
+    storageBucket: "painxhubv2.firebasestorage.app",
+    messagingSenderId: "702767143079",
+    appId: "1:702767143079:web:a63d63d09934666e416382",
+    measurementId: "G-0MM6Y3JQ33"
   };
 
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
-  // Send Broadcast Update
-  document.getElementById('publishForm').addEventListener('submit', function(e) {
+  document.getElementById('postForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    const postTitle = document.getElementById('title').value;
-    const postContent = document.getElementById('content').value;
-    const postId = 'post_' + Date.now();
+    const title = document.getElementById('postTitle').value;
+    const content = document.getElementById('postContent').value;
 
-    set(ref(db, 'posts/' + postId), {
-      title: postTitle,
-      content: postContent,
+    const newPostRef = push(ref(db, 'posts'));
+    set(newPostRef, {
+      title: title,
+      content: content,
       timestamp: Date.now()
     }).then(() => {
-      alert('Post successfully published to Firebase!');
-      document.getElementById('publishForm').reset();
-    }).catch((error) => {
-      alert('Error: ' + error.message);
-    });
+      document.getElementById('postTitle').value = '';
+      document.getElementById('postContent').value = '';
+      alert('Broadcast published globally!');
+    }).catch((err) => alert(err.message));
   });
 
-  // Track and build live registrations table automatically
   onValue(ref(db, 'users'), (snapshot) => {
-    const tableBody = document.getElementById('userTableBody');
-    tableBody.innerHTML = '';
+    const tbody = document.getElementById('userTableBody');
+    tbody.innerHTML = '';
 
     if (snapshot.exists()) {
-      snapshot.forEach((childSnapshot) => {
-        const user = childSnapshot.val();
+      const users = snapshot.val();
+      for (let uid in users) {
+        const user = users[uid];
         const row = document.createElement('tr');
-
+        
         row.innerHTML = `
-          <td><b>${user.email || 'Anonymous'}</b></td>
-          <td style="color: #3b82f6; font-family: monospace;">${user.referralCode || 'N/A'}</td>
+          <td>${user.email || 'Anonymous'}</td>
+          <td style="font-family: monospace; font-weight: bold; color: #cc0000;">${user.referralCode || 'N/A'}</td>
           <td>${user.usesCount || 0} / 3</td>
-          <td style="color: #10b981; font-weight: bold;">₦${(user.balance || 0).toLocaleString()}</td>
+          <td style="font-weight: bold; color: #fff;">₦${(user.balance || 0).toLocaleString()}</td>
         `;
-        tableBody.appendChild(row);
-      });
+        tbody.appendChild(row);
+      }
     } else {
-      tableBody.innerHTML = `<tr><td colspan="4" style="color: #9ca3af; text-align: center;">No active registrations registered yet.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #6b7280;">No active users in V2 database yet.</td></tr>`;
     }
   });
 </script>
 </body>
 </html>
-
-
