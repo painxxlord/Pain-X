@@ -11,7 +11,6 @@
         .input-box { width: 100%; background-color: #111827; border: 1px solid #374151; color: white; padding: 10px; border-radius: 8px; margin-bottom: 10px; box-sizing: border-box; }
         h1 { color: #ffffff; font-size: 24px; margin-bottom: 5px; }
         h2 { color: #ffffff; font-size: 18px; margin-top: 0; }
-        .stat-num { font-size: 28px; font-weight: bold; color: #10b981; margin: 5px 0 0 0; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; text-align: left; }
         th { font-size: 11px; text-transform: uppercase; color: #9ca3af; padding: 10px 5px; border-bottom: 1px solid #374151; }
         td { padding: 12px 5px; border-bottom: 1px solid #374151; font-size: 13px; }
@@ -24,48 +23,31 @@
         <div style="color: #9ca3af; font-size: 13px;">Main Admin: Pain</div>
     </div>
 
-    <div class="card">
-        <div style="color: #9ca3af; font-size: 12px;">Total Registrations</div>
-        <p class="stat-num" style="color: #3b82f6;">1,248</p>
-    </div>
-    
-    <div class="card">
-        <div style="color: #9ca3af; font-size: 12px;">Hologram Referral Funds</div>
-        <p class="stat-num">₦6,240,000</p>
-    </div>
-
+    <!-- Post Box -->
     <div class="card">
         <h2>Publish to Feed</h2>
         <form id="publishForm">
-            <input type="text" id="title" placeholder="Post Title (e.g., Huge Announcement)" class="input-box" required>
+            <input type="text" id="title" placeholder="Post Title (e.g., System Update)" class="input-box" required>
             <textarea id="content" placeholder="What do you want everyone to see?" rows="3" class="input-box" style="resize: none;" required></textarea>
             <button type="submit" class="btn">Broadcast Post</button>
         </form>
     </div>
 
+    <!-- Live Table Tracker -->
     <div class="card" style="overflow-x: auto;">
-        <h2>Live Sign-Up Tracker</h2>
+        <h2>Live Sign-Up & Balance Tracker</h2>
         <table>
             <thead>
                 <tr>
-                    <th>User</th>
-                    <th>Code</th>
-                    <th>Referred By</th>
-                    <th>Balance</th>
+                    <th>User Email</th>
+                    <th>Referral Code</th>
+                    <th>Uses (Max 3)</th>
+                    <th>Total Balance</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="userTableBody">
                 <tr>
-                    <td><b>user_itachi</b></td>
-                    <td style="color: #3b82f6;">ITC7712</td>
-                    <td>Direct</td>
-                    <td style="color: #10b981; font-weight: bold;">₦25,000</td>
-                </tr>
-                <tr>
-                    <td><b>obito_design</b></td>
-                    <td style="color: #3b82f6;">OBT9031</td>
-                    <td>ITC7712</td>
-                    <td style="color: #10b981; font-weight: bold;">₦5,000</td>
+                    <td colspan="4" style="color: #9ca3af; text-align: center; padding: 15px;">Awaiting secure data sync...</td>
                 </tr>
             </tbody>
         </table>
@@ -73,7 +55,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+  import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyAxTd3U8V8kiJs1QHqJjVmgA1LGjkRhD-E",
@@ -88,6 +70,7 @@
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
+  // Send Broadcast Update
   document.getElementById('publishForm').addEventListener('submit', function(e) {
     e.preventDefault();
     const postTitle = document.getElementById('title').value;
@@ -105,7 +88,31 @@
       alert('Error: ' + error.message);
     });
   });
+
+  // Track and build live registrations table automatically
+  onValue(ref(db, 'users'), (snapshot) => {
+    const tableBody = document.getElementById('userTableBody');
+    tableBody.innerHTML = '';
+
+    if (snapshot.exists()) {
+      snapshot.forEach((childSnapshot) => {
+        const user = childSnapshot.val();
+        const row = document.createElement('tr');
+
+        row.innerHTML = `
+          <td><b>${user.email || 'Anonymous'}</b></td>
+          <td style="color: #3b82f6; font-family: monospace;">${user.referralCode || 'N/A'}</td>
+          <td>${user.usesCount || 0} / 3</td>
+          <td style="color: #10b981; font-weight: bold;">₦${(user.balance || 0).toLocaleString()}</td>
+        `;
+        tableBody.appendChild(row);
+      });
+    } else {
+      tableBody.innerHTML = `<tr><td colspan="4" style="color: #9ca3af; text-align: center;">No active registrations registered yet.</td></tr>`;
+    }
+  });
 </script>
 </body>
 </html>
+
 
