@@ -2,41 +2,261 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PainXHub - Master Admin Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background: #000; color: white; padding: 20px; font-family: sans-serif; }
-        .user-card { background: #181818; padding: 15px; margin-bottom: 10px; border-left: 4px solid #cc0000; }
+        *, *::before, *::after { box-sizing: border-box; }
+        body {
+            background-color: #030303;
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .dashboard-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .admin-header {
+            border-bottom: 2px solid #e50914;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .admin-header h1 {
+            color: #e50914;
+            margin: 0;
+            font-size: 26px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .status-badge {
+            background: #222;
+            border: 1px solid #e50914;
+            color: #e50914;
+            padding: 5px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .summary-card {
+            background: #111;
+            border: 1px solid #222;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .summary-card .metric {
+            font-size: 28px;
+            font-weight: bold;
+            color: #e50914;
+        }
+        .summary-card .label {
+            font-size: 12px;
+            color: #777;
+            text-transform: uppercase;
+            margin-top: 5px;
+        }
+        .panel-section {
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .panel-section h2 {
+            margin-top: 0;
+            font-size: 18px;
+            border-bottom: 1px solid #222;
+            padding-bottom: 10px;
+            color: #aaa;
+        }
+        
+        /* DATA MANAGEMENT LAYOUT */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #222;
+        }
+        th {
+            background: #000;
+            color: #e50914;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+        }
+        tr:hover { background: #151515; }
+        
+        /* CONTROL UTILITIES ELEMENTS */
+        .btn-action {
+            background: #e50914;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-right: 5px;
+        }
+        .btn-action:hover { background: #b20710; }
+        .btn-action.disabled-action {
+            background: #222;
+            color: #555;
+            cursor: not-allowed;
+            border: 1px solid #333;
+        }
+        .btn-action.revoked { background: #444; }
+        .verified-check { color: #e50914; margin-left: 5px; }
     </style>
 </head>
 <body>
-    <h1>Verification Center</h1>
-    <div id="userList"></div>
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-    
-    const db = getDatabase(initializeApp({
-        apiKey: "AIzaSyAN4oKAF6Od2u6aMOBk8G9u4Xa2QyRFWio",
-        authDomain: "painakatsukihub-33fa6.firebaseapp.com",
-        databaseURL: "https://painakatsukihub-33fa6-default-rtdb.firebaseio.com",
-        projectId: "painakatsukihub-33fa6",
-        storageBucket: "painakatsukihub-33fa6.firebasestorage.app",
-        messagingSenderId: "327168157848",
-        appId: "1:327168157848:web:49f6f22ed027cbb48608ed"
-    }));
 
-    onValue(ref(db, 'users'), (s) => {
-        const list = document.getElementById('userList');
-        list.innerHTML = "";
-        s.forEach((u) => {
-            const d = u.val();
-            const canVerify = d.followers >= 1000 || d.name === "Pain";
-            list.innerHTML += `<div class="user-card">${d.name} (${d.followers} followers) 
-                ${canVerify ? `<button onclick="window.v('${u.key}')">Verify</button>` : '(Needs 1000 followers)'}
-            </div>`;
+    <div class="dashboard-container">
+        <div class="admin-header">
+            <h1><i class="fa-solid fa-toolbox"></i> Control Center Panel</h1>
+            <div class="status-badge">System Live Link Secure</div>
+        </div>
+
+        <div class="summary-grid">
+            <div class="summary-card">
+                <div class="metric" id="total-users-count">0</div>
+                <div class="label">Total Registered Profiles</div>
+            </div>
+            <div class="summary-card">
+                <div class="metric" id="verified-users-count">0</div>
+                <div class="label">Verified Accounts</div>
+            </div>
+            <div class="summary-card">
+                <div class="metric" id="broadcasts-count">0</div>
+                <div class="label">Total Posts Published</div>
+            </div>
+        </div>
+
+        <div class="panel-section">
+            <h2>User Community Registry Management Grid</h2>
+            <p style="color:#666; font-size:12px; margin-top:-5px; margin-bottom:15px;">
+                Note: Verification badges (Meta-style Red Checkmarks) can be toggled here for users who reach the 1,000 follower threshold or system assets like "Pain".
+            </p>
+            <div style="overflow-x:auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>User Name Identity</th>
+                            <th>Email Parameter</th>
+                            <th>Followers</th>
+                            <th>Likes Accumulation</th>
+                            <th>Status Badge</th>
+                            <th>Administrative Command</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-table-body">
+                        <tr>
+                            <td colspan="6" style="text-align:center; color:#555; padding:30px;">Awaiting live data streams...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+        import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+
+        // EMBEDDED AUTOMATED CONFIGURATION MATCHING PRIMARY CLIENT FEEDS
+        const firebaseConfig = {
+            apiKey: "AIzaSyAs7Hk1JdZz-Pl7Mn9Vq2Xh5_XbmRz4vYs",
+            authDomain: "painakatsukihub-33fa6.firebaseapp.com",
+            databaseURL: "https://painakatsukihub-33fa6-default-rtdb.firebaseio.com",
+            projectId: "painakatsukihub-33fa6",
+            storageBucket: "painakatsukihub-33fa6.appspot.com",
+            messagingSenderId: "109823647182",
+            appId: "1:109823647182:web:7f6b8a9c0e1d2f3b4a5e6f"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        onValue(ref(db), (snapshot) => {
+            const masterData = snapshot.val() || {};
+            const users = masterData.users || {};
+            const posts = masterData.posts || {};
+
+            const userKeys = Object.keys(users);
+            const totalUsers = userKeys.length;
+            let verifiedCount = 0;
+            const totalPosts = Object.keys(posts).length;
+
+            const tbody = document.getElementById('admin-table-body');
+            tbody.innerHTML = "";
+
+            userKeys.forEach(uid => {
+                const user = users[uid];
+                const followerCount = user.followers || 0;
+                const totalLikes = user.likes || 0;
+                const isVerified = user.verified || false;
+                
+                if (isVerified) verifiedCount++;
+
+                const isSystemPain = (user.name && user.name.toLowerCase() === "pain") || uid === "pain_ai_agent";
+                const thresholdMet = followerCount >= 1000;
+                const canVerify = isSystemPain || thresholdMet;
+
+                let actionButtonMarkup = "";
+                if (isVerified) {
+                    actionButtonMarkup = `<button class="btn-action revoked" onclick="setVerificationState('${uid}', false)">Revoke Badge</button>`;
+                } else {
+                    if (canVerify) {
+                        actionButtonMarkup = `<button class="btn-action" onclick="setVerificationState('${uid}', true)">Approve Verification</button>`;
+                    } else {
+                        actionButtonMarkup = `<button class="btn-action disabled-action" title="Requires 1,000+ followers or explicit admin name designation" disabled>Locked (${followerCount}/1k)</button>`;
+                    }
+                }
+
+                const checkmarkMarkup = isVerified ? `<span class="verified-check"><i class="fa-solid fa-circle-check"></i></span>` : `<span style="color:#333;">—</span>`;
+
+                const tr = `
+                    <tr>
+                        <td style="font-weight:bold;">${user.name || 'Anonymous User'}</td>
+                        <td style="color:#aaa; font-family:monospace;">${user.email || 'N/A'}</td>
+                        <td><span style="color:#e50914; font-weight:bold;">${followerCount.toLocaleString()}</span></td>
+                        <td>${totalLikes.toLocaleString()}</td>
+                        <td>${checkmarkMarkup}</td>
+                        <td>${actionButtonMarkup}</td>
+                    </tr>
+                `;
+                tbody.innerHTML += tr;
+            });
+
+            document.getElementById('total-users-count').innerText = totalUsers;
+            document.getElementById('verified-users-count').innerText = verifiedCount;
+            document.getElementById('broadcasts-count').innerText = totalPosts;
         });
-    });
-    window.v = (uid) => update(ref(db, 'users/' + uid), { verified: true });
-</script>
+
+        window.setVerificationState = function(uid, targetState) {
+            update(ref(db, `users/${uid}`), {
+                verified: targetState
+            }).then(() => {
+                alert(`User verification status altered to: ${targetState}`);
+            }).catch(err => alert("Modification Rejected: " + err.message));
+        };
+    </script>
 </body>
 </html>
