@@ -84,3 +84,24 @@
     </script>
 </body>
 </html>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+  import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAxTd3U8V8kiJs1QHqJjVmgA1LGjkRhD-E",
+    authDomain: "painxhub-355d5.firebaseapp.com",
+    databaseURL: "https://painxhub-355d5-default-rtdb.firebaseio.com",
+    projectId: "painxhub-355d5",
+    storageBucket: "painxhub-355d5.firebasestorage.app",
+    messagingSenderId: "382129150451",
+    appId: "1:382129150451:web:be5e0cf786968b368b9a86"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  window.db = db;
+  window.ref = ref;
+  window.set = set;
+</script>
+
