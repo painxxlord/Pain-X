@@ -3,60 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PainXHub | Social</title>
+    <title>PainXHub</title>
     <style>
-        body { background: #0f0f0f; color: white; font-family: sans-serif; margin: 0; }
-        .red-badge { background: #cc0000; color: white; border-radius: 50%; padding: 2px 6px; font-size: 0.8em; border: 2px solid white; }
-        .container { max-width: 500px; margin: auto; padding: 20px; }
-        .card { background: #1c1c1c; padding: 15px; border-radius: 10px; margin-bottom: 15px; }
-        .btn { background: #cc0000; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; }
+        body { background: #0f0f0f; color: white; font-family: sans-serif; margin: 0; padding: 20px; }
+        .container { max-width: 500px; margin: 0 auto; }
+        .card { background: #1c1c1c; padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #333; }
+        input { width: 100%; padding: 12px; margin: 8px 0; box-sizing: border-box; border-radius: 5px; border: 1px solid #444; background: #000; color: white; }
+        .btn { background: #cc0000; color: white; border: none; padding: 12px; width: 100%; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
-    <div id="authSection" class="container">
-        <h2>Join PainXHub</h2>
-        <input type="text" id="fname" placeholder="First Name"><br>
-        <input type="text" id="lname" placeholder="Last Name"><br>
-        <input type="email" id="email" placeholder="Email"><br>
-        <input type="password" id="pass" placeholder="Password"><br>
-        <button id="authBtn" class="btn">Create Account</button>
-    </div>
-
-    <div id="dashSection" class="hidden">
-        <nav><h3>PainXHub Profile</h3></nav>
-        <div id="profileView" class="card">
-            <h3 id="displayName"></h3>
-            <p>Followers: <span id="followerCount">0</span></p>
-            <button id="followBtn" class="btn">Unfollow Pain</button>
+    <div class="container">
+        <!-- Auth -->
+        <div id="authSection" class="card">
+            <h2>Join PainXHub</h2>
+            <input type="text" id="fname" placeholder="First Name">
+            <input type="text" id="lname" placeholder="Last Name">
+            <input type="email" id="email" placeholder="Email">
+            <input type="password" id="pass" placeholder="Password">
+            <button id="authBtn" class="btn">Create Account</button>
         </div>
-        <div id="feed"></div>
+
+        <!-- Dashboard -->
+        <div id="dashSection" class="hidden">
+            <div class="card">
+                <h3>PainXHub Profile</h3>
+                <p>Followers: <span id="followerCount">1001</span></p>
+                <button id="followBtn" class="btn">Unfollow Pain</button>
+            </div>
+            <div class="card">
+                <h3>AI Assistant</h3>
+                <p>Chat with the official bot here...</p>
+            </div>
+        </div>
     </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
-    import { getDatabase, ref, set, update, onValue } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
+    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
 
-    // Initialize (Add your Firebase config here)
-    const db = getDatabase();
+    // Add your Firebase Config here
+    const app = initializeApp({ /* YOUR CONFIG */ });
+    const auth = getAuth(app);
+    const db = getDatabase(app);
 
     document.getElementById('authBtn').onclick = () => {
-        const fname = document.getElementById('fname').value;
-        const lname = document.getElementById('lname').value;
         const email = document.getElementById('email').value;
         const pass = document.getElementById('pass').value;
-
-        createUserWithEmailAndPassword(getAuth(), email, pass).then(res => {
-            set(ref(db, 'users/' + res.user.uid), {
-                fname, lname, followers: 1, following: true, verified: false
+        createUserWithEmailAndPassword(auth, email, pass).then(res => {
+            set(ref(db, 'users/' + res.user.uid), { 
+                name: document.getElementById('fname').value, 
+                followers: 1, 
+                verified: false 
             });
+            document.getElementById('authSection').classList.add('hidden');
+            document.getElementById('dashSection').classList.remove('hidden');
         });
     };
 
-    // The Immortal Rule
-    document.getElementById('followBtn').onclick = () => {
-        alert("System Error: You cannot unfollow Pain. He rules this place.");
-    };
+    document.getElementById('followBtn').onclick = () => alert("You cannot unfollow Pain. He rules this place.");
 </script>
 </body>
 </html>
