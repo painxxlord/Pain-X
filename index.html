@@ -22,7 +22,29 @@
         .ref-code { background-color: #0f172a; padding: 8px; border-radius: 6px; font-family: monospace; color: #3b82f6; display: inline-block; margin-top: 5px; font-size: 16px; }
     </style>
 </head>
-<body>
+<body><!-- Login / Signup Screen Container -->
+<div id="auth-container" class="card">
+  <h2>Access Global Social Hub</h2>
+  <p style="color: #94a3b8; font-size: 13px; margin-bottom: 15px;">Sign in to unlock your hub dashboard</p>
+  
+  <form id="login-form" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px;">
+    <input type="email" id="auth-email" placeholder="Email Address" required style="padding: 12px; border-radius: 8px; border: 1px solid #334155; background-color: #0f172a; color: white;">
+    <input type="password" id="auth-password" placeholder="Password" required style="padding: 12px; border-radius: 8px; border: 1px solid #334155; background-color: #0f172a; color: white;">
+    
+    <button type="submit" class="social-btn tw" style="border: none; width: 100%; cursor: pointer;">Sign In / Sign Up</button>
+  </form>
+
+  <div style="color: #94a3b8; font-size: 12px; margin-bottom: 15px;">— OR —</div>
+
+  <!-- Google Sign-In Button -->
+  <button id="google-signin-btn" class="social-btn fb" style="border: none; width: 100%; cursor: pointer; background-color: #df4930;">
+    Connect with Google
+  </button>
+</div>
+
+<!-- Main App Wrapper (Hidden until logged in) -->
+<div id="main-app-content" style="display: none;">
+
 
     <!-- Top Profile Hub -->
     <div class="card">
@@ -31,11 +53,9 @@
         
         <!-- Social Media Grid Link Tree -->
         <div class="social-grid">
-            <a href="#" class="social-btn tw">X / Twitter</a>
-            <a href="#" class="social-btn fb">Facebook</a>
-            <a href="#" class="social-btn tt">TikTok</a>
-            <a href="#" class="social-btn wa">WhatsApp</a>
-        </div>
+            <a href="https://www.tiktok.com/@pain_d_stepss?_r=1&_t=ZS-97XDMgnjqei" class="social-btn tt">TikTok</a>
+  <a href="https://www.youtube.com/@lordpain_x" class="social-btn yt">YouTube</a>
+  </div>
     </div>
 
     <!-- Hologram Referral Tracking System -->
@@ -48,7 +68,6 @@
 
     <!-- Global Broadcast Feed Title -->
     <h2 style="margin-left: 5px; margin-bottom: 10px;">Latest Updates From Admin</h2>
-
     <!-- Sample Broadcast Post Container -->
     <div class="post-card">
         <!-- Temporary placeholder till admin broadcasts -->
@@ -59,46 +78,97 @@
             <b>Admin Update:</b> Welcome to the platform! Anything I publish right from my secure panel will automatically replace this block instantly.
         </div>
     </div>
-    <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-  import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
+    <!-- Log Out Button -->
+<div style="text-align: center; margin-top: 30px; margin-bottom: 20px;">
+  <button id="logout-btn" style="background-color: #e63946; color: white; border: none; padding: 10px 20px; font-size: 14px; font-weight: bold; border-radius: 8px; cursor: pointer; width: 80%; max-width: 300px;">
+    Log Out
+  </button>
+</div>
 
+<!-- Firebase App (the core Firebase SDK) -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<!-- Firebase Products we need -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+<script>
+  // Your web app's Firebase configuration
   const firebaseConfig = {
     apiKey: "AIzaSyAxTd3U8V8kiJs1QHqJjVmgA1LGjkRhD-E",
     authDomain: "painxhub-355d5.firebaseapp.com",
-    databaseURL: "https://painxhub-355d5-default-rtdb.firebaseio.com",
+    databaseURL: "https://painxhub-355d5-default-rtdb.firebaseio.com/",
     projectId: "painxhub-355d5",
-    storageBucket: "painxhub-355d5.firebasestorage.app",
+    storageBucket: "painxhub-355d5.appspot.com",
     messagingSenderId: "382129150451",
     appId: "1:382129150451:web:be5e0cf786968b368b9a86"
   };
 
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
-
-  // Listen to live posts from Firebase
-   const postsRef = ref(db, 'posts');
-onValue(postsRef, (snapshot) => {
-  const data = snapshot.val();
-  if (data) {
-    const keys = Object.keys(data);
-    const latestKey = keys[keys.length - 1];
-    const latestPost = data[latestKey];
-
-    const descElement = document.querySelector('.post-desc');
-    if (descElement) {
-      const displayTitle = latestPost.title || "Admin Update";
-      let displayContent = "";
-      
-      if (latestPost && typeof latestPost === 'object') {
-        // This checks every possible field your admin panel might be sending
-        displayContent = latestPost.content || latestPost.message || latestPost.text || JSON.stringify(latestPost);
-      } else {
-        displayContent = latestPost;
-      }
-      
-      descElement.innerHTML = `<b>${displayTitle}:</b> ${displayContent}`;
+  // Initialize Firebase
+  const app = firebaseConfig.initializeApp ? firebaseConfig.initializeApp(firebaseConfig) : firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const database = firebase.database();
+  
+  console.log("Firebase connected successfully!");
+    // Track Authentication State (Show/Hide login screen dynamically)
+  auth.onAuthStateChanged((user) => {
+    const authContainer = document.getElementById('auth-container');
+    const mainContent = document.getElementById('main-app-content');
+    
+    if (user) {
+      if (authContainer) authContainer.style.display = 'none';
+      if (mainContent) mainContent.style.display = 'block';
+      console.log("User logged in:", user.email);
+    } else {
+      if (authContainer) authContainer.style.display = 'block';
+      if (mainContent) mainContent.style.display = 'none';
     }
+  });
+
+  // Handle Email and Password Sign In / Sign Up Form
+  const loginForm = document.getElementById('login-form');
+  if (loginForm) {
+    loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = document.getElementById('auth-email').value;
+      const password = document.getElementById('auth-password').value;
+
+      auth.signInWithEmailAndPassword(email, password)
+        .catch((error) => {
+          if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+            return auth.createUserWithEmailAndPassword(email, password);
+          } else {
+            alert(error.message);
+          }
+        });
+    });
   }
-});
-        
+
+  // Handle Google Sign-In Button
+  const googleBtn = document.getElementById('google-signin-btn');
+  if (googleBtn) {
+    googleBtn.addEventListener('click', () => {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider)
+        .catch((error) => {
+          alert("Google Sign-In Error: " + error.message);
+        });
+    });
+  }
+  // Handle Log Out Button
+  const logoutBtn = document.getElementById('logout-btn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+      auth.signOut()
+        .then(() => {
+          console.log("User signed out successfully.");
+          location.reload(); 
+        })
+        .catch((error) => {
+          alert("Error signing out: " + error.message);
+        });
+    });
+  }
+
+</script>
+</body>
+</html>
