@@ -76,14 +76,10 @@
         </table>
     </div>
 
-    <script>
-        document.getElementById('publishForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            alert('Post Broadcast Triggered!');
-        });
-    </script>
+
 </body>
 </html>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
   import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
@@ -100,8 +96,26 @@
 
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
+
   window.db = db;
   window.ref = ref;
   window.set = set;
-</script>
 
+  document.getElementById('publishForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const postTitle = document.getElementById('title')?.value || 'New Post';
+    const postContent = document.getElementById('content')?.value || '';
+    const postId = 'post_' + Date.now();
+
+    window.set(window.ref(window.db, 'posts/' + postId), {
+      title: postTitle,
+      content: postContent,
+      timestamp: Date.now()
+    }).then(() => {
+      alert('Post successfully published to Firebase!');
+      document.getElementById('publishForm').reset();
+    }).catch((error) => {
+      alert('Error: ' + error.message);
+    });
+  });
+</script>
