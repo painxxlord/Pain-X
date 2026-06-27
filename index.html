@@ -15,54 +15,45 @@
 </head>
 <body>
     <div class="container">
-        <!-- Auth -->
         <div id="authSection" class="card">
-            <h2>Join PainXHub</h2>
+            <h2 id="formTitle">Join PainXHub</h2>
             <input type="text" id="fname" placeholder="First Name">
             <input type="text" id="lname" placeholder="Last Name">
             <input type="email" id="email" placeholder="Email">
             <input type="password" id="pass" placeholder="Password">
             <button id="authBtn" class="btn">Create Account</button>
+            <p id="toggleText" style="text-align:center; margin-top:15px; cursor:pointer; color:#888;">Already have an account? <span style="color:#cc0000;">Sign In</span></p>
         </div>
 
-        <!-- Dashboard -->
         <div id="dashSection" class="hidden">
             <div class="card">
                 <h3>PainXHub Profile</h3>
                 <p>Followers: <span id="followerCount">1001</span></p>
                 <button id="followBtn" class="btn">Unfollow Pain</button>
             </div>
-            <div class="card">
-                <h3>AI Assistant</h3>
-                <p>Chat with the official bot here...</p>
-            </div>
         </div>
     </div>
-
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
     import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
-
-    // Add your Firebase Config here
     const app = initializeApp({ /* YOUR CONFIG */ });
     const auth = getAuth(app);
     const db = getDatabase(app);
-
-    document.getElementById('authBtn').onclick = () => {
-        const email = document.getElementById('email').value;
-        const pass = document.getElementById('pass').value;
-        createUserWithEmailAndPassword(auth, email, pass).then(res => {
-            set(ref(db, 'users/' + res.user.uid), { 
-                name: document.getElementById('fname').value, 
-                followers: 1, 
-                verified: false 
-            });
-            document.getElementById('authSection').classList.add('hidden');
-            document.getElementById('dashSection').classList.remove('hidden');
-        });
+    let isLogin = false;
+    document.getElementById('toggleText').onclick = () => {
+        isLogin = !isLogin;
+        document.getElementById('formTitle').innerText = isLogin ? "Sign In" : "Join PainXHub";
+        document.getElementById('authBtn').innerText = isLogin ? "Sign In" : "Create Account";
+        document.getElementById('fname').style.display = isLogin ? "none" : "block";
+        document.getElementById('lname').style.display = isLogin ? "none" : "block";
     };
-
+    document.getElementById('authBtn').onclick = () => {
+        const e = document.getElementById('email').value;
+        const p = document.getElementById('pass').value;
+        if(isLogin) signInWithEmailAndPassword(auth, e, p).then(() => { document.getElementById('authSection').classList.add('hidden'); document.getElementById('dashSection').classList.remove('hidden'); });
+        else createUserWithEmailAndPassword(auth, e, p).then(res => { set(ref(db, 'users/' + res.user.uid), { name: document.getElementById('fname').value, followers: 1 }); document.getElementById('authSection').classList.add('hidden'); document.getElementById('dashSection').classList.remove('hidden'); });
+    };
     document.getElementById('followBtn').onclick = () => alert("You cannot unfollow Pain. He rules this place.");
 </script>
 </body>
