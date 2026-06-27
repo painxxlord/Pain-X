@@ -3,114 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hub Admin Management</title>
+    <title>PainXHub | Admin Panel</title>
     <style>
-        body { background-color: #05070a; color: #f3f4f6; font-family: sans-serif; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
-        .admin-container { width: 100%; max-width: 700px; }
-        .card { background-color: rgba(17, 24, 39, 0.9); border: 2px solid #cc0000; padding: 20px; border-radius: 16px; margin-bottom: 20px; box-shadow: 0 8px 32px 0 rgba(153, 0, 0, 0.2); }
-        h2 { margin-top: 0; color: white; text-transform: uppercase; font-size: 18px; letter-spacing: 1px; border-bottom: 1px solid #cc0000; padding-bottom: 8px; }
-        .input-box { width: 100%; background-color: #0b111e; border: 1px solid #cc0000; color: white; padding: 12px; border-radius: 8px; margin-bottom: 12px; box-sizing: border-box; }
-        .btn { background-color: #cc0000; color: white; padding: 12px; border: none; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; text-transform: uppercase; }
-        .btn:hover { background-color: #990000; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
-        th, td { border: 1px solid #cc0000; padding: 10px; text-align: left; }
-        th { background-color: #0b111e; color: white; }
-        tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.02); }
+        :root { --red: #cc0000; --dark-bg: #05070a; --card-bg: #0b111e; }
+        body { background: var(--dark-bg); color: #f3f4f6; font-family: sans-serif; margin: 20px; }
+        .panel { background: var(--card-bg); border: 2px solid var(--red); border-radius: 12px; padding: 20px; margin-bottom: 25px; }
+        h2 { color: white; margin-top: 0; border-bottom: 1px solid var(--red); padding-bottom: 8px; text-transform: uppercase; font-size: 16px; }
+        .input-box { width: 100%; background: #151f32; border: 1px solid #374151; color: white; padding: 12px; border-radius: 6px; box-sizing: border-box; margin-bottom: 12px; outline: none; }
+        .btn { background: var(--red); color: white; padding: 12px 20px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        .alert-item { background: rgba(255,0,0,0.1); border: 1px dashed var(--red); padding: 15px; border-radius: 8px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
     </style>
 </head>
 <body>
 
-    <div class="admin-container">
-        <!-- POST FEED MAKER -->
-        <div class="card">
-            <h2>Broadcast Admin Notification</h2>
-            <form id="postForm">
-                <input type="text" id="postTitle" placeholder="Update Header (e.g. SYSTEM ANNOUNCEMENT)" class="input-box" required>
-                <textarea id="postContent" placeholder="Write message summary details here..." class="input-box" rows="3" required></textarea>
-                <button type="submit" class="btn">Publish Live Feed</button>
-            </form>
-        </div>
+    <h1 style="color: white;">Creator Admin Console</h1>
 
-        <!-- LIVE METRICS DATA LIST -->
-        <div class="card">
-            <h2>Registered User Database Tracker</h2>
-            <div style="overflow-x: auto;">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Email Profile</th>
-                            <th>Referral Code</th>
-                            <th>Uses (Max 3)</th>
-                            <th>Total Balance</th>
-                        </tr>
-                    </thead>
-                    <tbody id="userTableBody">
-                        <tr>
-                            <td colspan="4" style="text-align: center; color: #6b7280;">Awaiting connection stream...</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+    <div class="panel">
+        <h2>Update Profiles & Social Links</h2>
+        <input type="text" id="adminBio" class="input-box" placeholder="Custom bio bio...">
+        <input type="text" id="adminYT" class="input-box" placeholder="YouTube URL...">
+        <input type="text" id="adminTT" class="input-box" placeholder="TikTok URL...">
+        <button id="saveLinksBtn" class="btn">Update Feed Data</button>
+    </div>
+
+    <div class="panel">
+        <h2>Moderation Flag Radar</h2>
+        <div id="flaggedContainer"><p style="color: #9ca3af;">Radar completely clean.</p></div>
+    </div>
+
+    <div class="panel">
+        <h2>Manual VIP Verification</h2>
+        <input type="text" id="verifyUidInput" class="input-box" placeholder="Paste User UID...">
+        <button id="forceVerifyBtn" class="btn" style="background: #1d9bf0;">Verify Account</button>
     </div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getDatabase, ref, push, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+    import { getDatabase, ref, set, update, onValue, remove } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyC0hTnq98FoZvQw7IlJPI0Fgdi1B2IFf18",
-    authDomain: "painxhubv2.firebaseapp.com",
-    projectId: "painxhubv2",
-    storageBucket: "painxhubv2.firebasestorage.app",
-    messagingSenderId: "702767143079",
-    appId: "1:702767143079:web:a63d63d09934666e416382",
-    measurementId: "G-0MM6Y3JQ33",
-    databaseURL: "https://painxhub-355d5-default-rtdb.firebaseio.com"
-  };
+    const firebaseConfig = {
+        apiKey: "AIzaSyAN4oKAF6Od2u6aMOBk8G9u4Xa2QyRFWio",
+        authDomain: "painakatsukihub-33fa6.firebaseapp.com",
+        projectId: "painakatsukihub-33fa6",
+        storageBucket: "painakatsukihub-33fa6.firebasestorage.app",
+        messagingSenderId: "327168157848",
+        appId: "1:327168157848:web:49f6f22ed027cbb48608ed",
+        measurementId: "G-BMWZZVHTWB"
+    };
 
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
 
-  document.getElementById('postForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const title = document.getElementById('postTitle').value;
-    const content = document.getElementById('postContent').value;
+    document.getElementById('saveLinksBtn').addEventListener('click', async () => {
+        const bio = document.getElementById('adminBio').value.trim();
+        const yt = document.getElementById('adminYT').value.trim();
+        const tk = document.getElementById('adminTT').value.trim();
+        let up = {}; if(bio) up.bio = bio; if(yt) up.yt = yt; if(tk) up.tk = tk;
+        await update(ref(db, 'creatorSettings'), up); alert("Synchronized!");
+    });
 
-    const newPostRef = push(ref(db, 'posts'));
-    set(newPostRef, {
-      title: title,
-      content: content,
-      timestamp: Date.now()
-    }).then(() => {
-      document.getElementById('postTitle').value = '';
-      document.getElementById('postContent').value = '';
-      alert('Broadcast published globally!');
-    }).catch((err) => alert(err.message));
-  });
+    document.getElementById('forceVerifyBtn').addEventListener('click', async () => {
+        const uid = document.getElementById('verifyUidInput').value.trim();
+        if(!uid) return;
+        await update(ref(db, `users/${uid}`), { verified: true });
+        alert("Badge Awarded!"); document.getElementById('verifyUidInput').value = "";
+    });
 
-  onValue(ref(db, 'users'), (snapshot) => {
-    const tbody = document.getElementById('userTableBody');
-    tbody.innerHTML = '';
+    onValue(ref(db, 'flaggedQueue'), (s) => {
+        const container = document.getElementById('flaggedContainer'); container.innerHTML = "";
+        if(!s.exists()){ container.innerHTML = `<p style="color:#9ca3af;">Radar completely clean.</p>`; return; }
+        s.forEach((c) => {
+            const k = c.key; const p = c.val();
+            container.innerHTML += `
+                <div class="alert-item">
+                    <div><strong>User:</strong> ${p.authorName}<br><strong>Text:</strong> ${p.bodyText}</div>
+                    <div>
+                        <button class="btn" onclick="banUser('${p.authorUid}', '${k}')" style="padding:6px; font-size:12px;">Ban</button>
+                        <button class="btn" onclick="dismiss('${k}')" style="padding:6px; font-size:12px; background:#374151;">Clear</button>
+                    </div>
+                </div>`;
+        });
+    });
 
-    if (snapshot.exists()) {
-      const users = snapshot.val();
-      for (let uid in users) {
-        const user = users[uid];
-        const row = document.createElement('tr');
-        
-        row.innerHTML = `
-          <td>${user.email || 'Anonymous'}</td>
-          <td style="font-family: monospace; font-weight: bold; color: #cc0000;">${user.referralCode || 'N/A'}</td>
-          <td>${user.usesCount || 0} / 3</td>
-          <td style="font-weight: bold; color: #fff;">₦${(user.balance || 0).toLocaleString()}</td>
-        `;
-        tbody.appendChild(row);
-      }
-    } else {
-      tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #6b7280;">No active users in V2 database yet.</td></tr>`;
-    }
-  });
+    window.banUser = async function(uid, k) {
+        if(confirm("Ban user permanently?")) {
+            await update(ref(db, `users/${uid}`), { isBanned: true });
+            await remove(ref(db, `flaggedQueue/${k}`)); alert("Banned.");
+        }
+    };
+    window.dismiss = async function(k) { await remove(ref(db, `flaggedQueue/${k}`)); };
 </script>
 </body>
 </html>
