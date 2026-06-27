@@ -12,27 +12,19 @@
 <body>
     <h1>Admin Panel</h1>
     <div id="userList"></div>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-        import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
-
-        const db = getDatabase(initializeApp({ /* ADD SAME CONFIG HERE */ }));
-
-        onValue(ref(db, 'users'), (snap) => {
-            const list = document.getElementById('userList');
-            list.innerHTML = "";
-            snap.forEach((user) => {
-                const u = user.val();
-                list.innerHTML += `
-                    <div class="user-card">
-                        ${u.name} - Followers: ${u.followers} 
-                        ${u.verified ? '<span class="red-badge">✔</span>' : ''}
-                        <button onclick="verify('${user.key}')">Verify User</button>
-                    </div>`;
-            });
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+    import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
+    const db = getDatabase(initializeApp({ /* ADD SAME CONFIG HERE */ }));
+    onValue(ref(db, 'users'), (snap) => {
+        const list = document.getElementById('userList');
+        list.innerHTML = "";
+        snap.forEach((user) => {
+            const u = user.val();
+            list.innerHTML += `<div class="user-card">${u.name} - Followers: ${u.followers} ${u.verified ? '<span class="red-badge">✔</span>' : ''} <button onclick="verify('${user.key}')">Verify User</button></div>`;
         });
-        window.verify = (uid) => update(ref(db, 'users/' + uid), { verified: true });
-    </script>
+    });
+    window.verify = (uid) => update(ref(db, 'users/' + uid), { verified: true });
+</script>
 </body>
 </html>
