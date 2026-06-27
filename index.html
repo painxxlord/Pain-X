@@ -59,6 +59,40 @@
             <b>Admin Update:</b> Welcome to the platform! Anything I publish right from my secure panel will automatically replace this block instantly.
         </div>
     </div>
+    <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+  import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAxTd3U8V8kiJs1QHqJjVmgA1LGjkRhD-E",
+    authDomain: "painxhub-355d5.firebaseapp.com",
+    databaseURL: "https://painxhub-355d5-default-rtdb.firebaseio.com",
+    projectId: "painxhub-355d5",
+    storageBucket: "painxhub-355d5.firebasestorage.app",
+    messagingSenderId: "382129150451",
+    appId: "1:382129150451:web:be5e0cf786968b368b9a86"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  // Listen to live posts from Firebase
+  const postsRef = ref(db, 'posts');
+  onValue(postsRef, (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+      const keys = Object.keys(data);
+      const latestKey = keys[keys.length - 1];
+      const latestPost = data[latestKey];
+
+      const descElement = document.querySelector('.post-desc');
+      if (descElement) {
+        descElement.innerHTML = `<b>${latestPost.title}:</b> ${latestPost.content}`;
+      }
+    }
+  });
+          </script>
+    
 
 </body>
 </html>
