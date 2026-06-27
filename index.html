@@ -77,22 +77,23 @@
   const db = getDatabase(app);
 
   // Listen to live posts from Firebase
-  const postsRef = ref(db, 'posts');
-  onValue(postsRef, (snapshot) => {
-    const data = snapshot.val();
-    if (data) {
-      const keys = Object.keys(data);
-      const latestKey = keys[keys.length - 1];
-      const latestPost = data[latestKey];
+   const postsRef = ref(db, 'posts');
+onValue(postsRef, (snapshot) => {
+  const data = snapshot.val();
+  if (data) {
+    const keys = Object.keys(data);
+    const latestKey = keys[keys.length - 1];
+    const latestPost = data[latestKey];
 
-      const descElement = document.querySelector('.post-desc');
-      if (descElement) {
-        descElement.innerHTML = `<b>${latestPost.title}:</b> ${latestPost.content}`;
-      }
+    const descElement = document.querySelector('.post-desc');
+    if (descElement) {
+      const displayTitle = latestPost.title || "Admin Update";
+      const displayContent = latestPost.content || latestPost;
+      descElement.innerHTML = `<b>${displayTitle}:</b> ${displayContent}`;
     }
-  });
+  }
+});
+        
           </script>
     
 
-</body>
-</html>
