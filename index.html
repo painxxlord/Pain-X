@@ -109,7 +109,33 @@
   const database = firebase.database();
   
   console.log("Firebase connected successfully!");
-    // Track Authentication State (Show/Hide login screen dynamically)
+
+  // Listen to live posts from Firebase
+  const postsRef = database.ref('posts');
+  postsRef.limitToLast(1).on('value', (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+      const keys = Object.keys(data);
+      const latestKey = keys[keys.length - 1];
+      const latestPost = data[latestKey];
+
+      const descElement = document.querySelector('.post-desc');
+      if (descElement) {
+        const displayTitle = latestPost.title || "Admin Update";
+        let displayContent = "";
+        
+        if (latestPost && typeof latestPost === 'object') {
+          displayContent = latestPost.content || latestPost.message || latestPost.text || JSON.stringify(latestPost);
+        } else {
+          displayContent = latestPost;
+        }
+        
+        descElement.innerHTML = `<b>${displayTitle}:</b> ${displayContent}`;
+      }
+    }
+  });
+
+  // Track Authentication State (Show/Hide login screen dynamically)
   auth.onAuthStateChanged((user) => {
     const authContainer = document.getElementById('auth-container');
     const mainContent = document.getElementById('main-app-content');
@@ -154,6 +180,7 @@
         });
     });
   }
+
   // Handle Log Out Button
   const logoutBtn = document.getElementById('logout-btn');
   if (logoutBtn) {
@@ -172,3 +199,4 @@
 </script>
 </body>
 </html>
+
