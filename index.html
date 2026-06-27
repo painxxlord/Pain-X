@@ -24,7 +24,6 @@
             <button id="authBtn" class="btn">Create Account</button>
             <p id="toggleText" style="text-align:center; margin-top:15px; cursor:pointer; color:#888;">Already have an account? <span style="color:#cc0000;">Sign In</span></p>
         </div>
-
         <div id="dashSection" class="hidden">
             <div class="card">
                 <h3>PainXHub Profile</h3>
@@ -41,18 +40,22 @@
     const auth = getAuth(app);
     const db = getDatabase(app);
     let isLogin = false;
+    const formTitle = document.getElementById('formTitle');
+    const authBtn = document.getElementById('authBtn');
+    const fname = document.getElementById('fname');
+    const lname = document.getElementById('lname');
     document.getElementById('toggleText').onclick = () => {
         isLogin = !isLogin;
-        document.getElementById('formTitle').innerText = isLogin ? "Sign In" : "Join PainXHub";
-        document.getElementById('authBtn').innerText = isLogin ? "Sign In" : "Create Account";
-        document.getElementById('fname').style.display = isLogin ? "none" : "block";
-        document.getElementById('lname').style.display = isLogin ? "none" : "block";
+        formTitle.innerText = isLogin ? "Sign In" : "Join PainXHub";
+        authBtn.innerText = isLogin ? "Sign In" : "Create Account";
+        fname.style.display = isLogin ? "none" : "block";
+        lname.style.display = isLogin ? "none" : "block";
     };
-    document.getElementById('authBtn').onclick = () => {
+    authBtn.onclick = () => {
         const e = document.getElementById('email').value;
         const p = document.getElementById('pass').value;
-        if(isLogin) signInWithEmailAndPassword(auth, e, p).then(() => { document.getElementById('authSection').classList.add('hidden'); document.getElementById('dashSection').classList.remove('hidden'); });
-        else createUserWithEmailAndPassword(auth, e, p).then(res => { set(ref(db, 'users/' + res.user.uid), { name: document.getElementById('fname').value, followers: 1 }); document.getElementById('authSection').classList.add('hidden'); document.getElementById('dashSection').classList.remove('hidden'); });
+        if(isLogin) signInWithEmailAndPassword(auth, e, p).then(() => { document.getElementById('authSection').classList.add('hidden'); document.getElementById('dashSection').classList.remove('hidden'); }).catch(err => alert(err.message));
+        else createUserWithEmailAndPassword(auth, e, p).then(res => { set(ref(db, 'users/' + res.user.uid), { name: fname.value + " " + lname.value, followers: 1 }); document.getElementById('authSection').classList.add('hidden'); document.getElementById('dashSection').classList.remove('hidden'); }).catch(err => alert(err.message));
     };
     document.getElementById('followBtn').onclick = () => alert("You cannot unfollow Pain. He rules this place.");
 </script>
