@@ -5,28 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Control Panel</title>
     <style>
-        /* Self-contained styling that loads instantly offline */
         body { background-color: #111827; color: #f3f4f6; font-family: sans-serif; margin: 0; padding: 15px; }
         .card { background-color: #1f2937; border: 1px solid #374151; padding: 20px; border-radius: 12px; margin-bottom: 15px; }
-        .btn { background-color: #2563eb; color: white; padding: 10px; border: none; border-radius: 8px; width: 100%; font-weight: bold; font-size: 14px; }
+        .btn { background-color: #2563eb; color: white; padding: 10px; border: none; border-radius: 8px; width: 100%; font-weight: bold; font-size: 14px; cursor: pointer; }
         .input-box { width: 100%; background-color: #111827; border: 1px solid #374151; color: white; padding: 10px; border-radius: 8px; margin-bottom: 10px; box-sizing: border-box; }
         h1 { color: #ffffff; font-size: 24px; margin-bottom: 5px; }
         h2 { color: #ffffff; font-size: 18px; margin-top: 0; }
         .stat-num { font-size: 28px; font-weight: bold; color: #10b981; margin: 5px 0 0 0; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; text-align: left; }
-        th { font-size: 11px; text-transform: uppercase; color: #9ca3af; padding: 10px 5px; border-b: 1px solid #374151; }
+        th { font-size: 11px; text-transform: uppercase; color: #9ca3af; padding: 10px 5px; border-bottom: 1px solid #374151; }
         td { padding: 12px 5px; border-bottom: 1px solid #374151; font-size: 13px; }
     </style>
 </head>
 <body>
 
-    <!-- Header -->
     <div style="margin-bottom: 20px;">
         <h1>System Overview [HQ Panel]</h1>
         <div style="color: #9ca3af; font-size: 13px;">Main Admin: Pain</div>
     </div>
 
-    <!-- Analytics Cards -->
     <div class="card">
         <div style="color: #9ca3af; font-size: 12px;">Total Registrations</div>
         <p class="stat-num" style="color: #3b82f6;">1,248</p>
@@ -37,17 +34,15 @@
         <p class="stat-num">₦6,240,000</p>
     </div>
 
-    <!-- Post Box -->
     <div class="card">
         <h2>Publish to Feed</h2>
         <form id="publishForm">
-            <input type="text" placeholder="Paste Image URL here..." class="input-box">
-            <textarea placeholder="What do you want everyone to see?" rows="3" class="input-box" style="resize: none;"></textarea>
+            <input type="text" id="title" placeholder="Post Title (e.g., Huge Announcement)" class="input-box" required>
+            <textarea id="content" placeholder="What do you want everyone to see?" rows="3" class="input-box" style="resize: none;" required></textarea>
             <button type="submit" class="btn">Broadcast Post</button>
         </form>
     </div>
 
-    <!-- Live Table -->
     <div class="card" style="overflow-x: auto;">
         <h2>Live Sign-Up Tracker</h2>
         <table>
@@ -76,20 +71,16 @@
         </table>
     </div>
 
-
-</body>
-</html>
-
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-  import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyAxTd3U8V8kiJs1QHqJjVmgA1LGjkRhD-E",
     authDomain: "painxhub-355d5.firebaseapp.com",
     databaseURL: "https://painxhub-355d5-default-rtdb.firebaseio.com",
     projectId: "painxhub-355d5",
-    storageBucket: "painxhub-355d5.firebasestorage.app",
+    storageBucket: "painxhub-355d5.appspot.com",
     messagingSenderId: "382129150451",
     appId: "1:382129150451:web:be5e0cf786968b368b9a86"
   };
@@ -97,17 +88,13 @@
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
-  window.db = db;
-  window.ref = ref;
-  window.set = set;
-
   document.getElementById('publishForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    const postTitle = document.getElementById('title')?.value || 'New Post';
-    const postContent = document.getElementById('content')?.value || '';
+    const postTitle = document.getElementById('title').value;
+    const postContent = document.getElementById('content').value;
     const postId = 'post_' + Date.now();
 
-    window.set(window.ref(window.db, 'posts/' + postId), {
+    set(ref(db, 'posts/' + postId), {
       title: postTitle,
       content: postContent,
       timestamp: Date.now()
@@ -119,3 +106,6 @@
     });
   });
 </script>
+</body>
+</html>
+
