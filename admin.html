@@ -21,6 +21,7 @@
 <body>
 
     <div class="admin-container">
+        <!-- POST FEED MAKER -->
         <div class="card">
             <h2>Broadcast Admin Notification</h2>
             <form id="postForm">
@@ -30,6 +31,7 @@
             </form>
         </div>
 
+        <!-- LIVE METRICS DATA LIST -->
         <div class="card">
             <h2>Registered User Database Tracker</h2>
             <div style="overflow-x: auto;">
@@ -56,7 +58,6 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
   import { getDatabase, ref, push, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-  // Securely linked to PainXHub-V2
   const firebaseConfig = {
     apiKey: "AIzaSyC0hTnq98FoZvQw7IlJPI0Fgdi1B2IFf18",
     authDomain: "painxhubv2.firebaseapp.com",
@@ -64,7 +65,8 @@
     storageBucket: "painxhubv2.firebasestorage.app",
     messagingSenderId: "702767143079",
     appId: "1:702767143079:web:a63d63d09934666e416382",
-    measurementId: "G-0MM6Y3JQ33"
+    measurementId: "G-0MM6Y3JQ33",
+    databaseURL: "https://painxhub-355d5-default-rtdb.firebaseio.com"
   };
 
   const app = initializeApp(firebaseConfig);
