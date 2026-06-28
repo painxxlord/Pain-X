@@ -32,7 +32,6 @@
       const storage = firebase.storage();
     </script>
 
-    <!-- AUTHENTICATION WALL OVERLAY -->
     <div id="auth-overlay" class="fixed inset-0 bg-zinc-950 z-[100] flex items-center justify-center p-4">
         <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
             <div class="text-center mb-6">
@@ -60,41 +59,33 @@
         </div>
     </div>
 
-    <!-- MAIN APP WRAPPER -->
     <div id="app-content" class="hidden">
-        <!-- Top Navigation Line Bar -->
         <nav class="border-b border-zinc-800 bg-zinc-900/80 backdrop-blur sticky top-0 z-50 px-4 py-3">
             <div class="max-w-4xl mx-auto flex justify-between items-center">
                 <h1 class="text-xl font-black tracking-wider text-red-500 cursor-pointer" onclick="switchTab('feed')">PAIN X</h1>
                 
-                <!-- Navbar Toolbar Action Items Line -->
                 <div class="flex items-center gap-5 text-zinc-400">
                     <button onclick="switchTab('feed')" class="hover:text-zinc-100 transition text-lg" title="Global Stream Feed">🏠</button>
                     <button onclick="switchTab('videos')" class="hover:text-zinc-100 transition text-lg" title="Watch Videos Only">🎬</button>
-                    <button onclick="switchTab('chat')" class="hover:text-zinc-100 transition text-lg relative" title="Pain AI Chat Room">💬<span id="chat-alert" class="hidden absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span></button>
+                    <button onclick="switchTab('chat')" class="hover:text-zinc-100 transition text-lg relative" title="Messages Tab">💬<span id="chat-alert" class="hidden absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span></button>
                     <button onclick="openProfileView()" class="hover:text-zinc-100 transition text-lg" title="My Profile">👤</button>
                     <button onclick="toggleSettingsMenu()" class="hover:text-zinc-100 transition text-lg" title="System Settings">⚙️</button>
                 </div>
             </div>
         </nav>
 
-        <!-- Dropdown Settings Layer Box -->
         <div id="settings-menu" class="hidden absolute right-4 top-14 bg-zinc-900 border border-zinc-800 p-2 rounded-xl shadow-2xl z-50 w-44">
             <a href="admin.html" class="block px-3 py-2 text-xs font-semibold hover:bg-zinc-800 rounded-lg text-zinc-300">🚨 System Terminal</a>
             <button onclick="logoutUser()" class="w-full text-left px-3 py-2 text-xs font-bold text-red-500 hover:bg-red-950/40 rounded-lg mt-1 border-t border-zinc-800/60 pt-2">🚪 Log Out</button>
         </div>
 
-        <!-- MAIN LAYOUT VIEWS SWITCH CONTAINER -->
         <main class="max-w-2xl mx-auto p-4 min-h-screen">
             
-            <!-- VIEW A: GLOBAL TIMELINE STREAM FEED -->
             <div id="view-feed" class="space-y-4">
-                <!-- Composer Box Frame -->
                 <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 shadow-xl">
                     <form onsubmit="handlePostSubmit(event)">
                         <textarea id="post-input" required rows="3" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-sm focus:outline-none focus:border-red-500 transition resize-none text-zinc-100 placeholder-zinc-500" placeholder="What's on your mind today?"></textarea>
                         
-                        <!-- Upload Parameters Row -->
                         <div class="flex items-center justify-between mt-2 pt-2 border-t border-zinc-800/50">
                             <label class="cursor-pointer flex items-center gap-1.5 text-xs font-bold text-zinc-400 hover:text-zinc-200 transition">
                                 📁 <span>Attach Video Clip</span>
@@ -106,48 +97,42 @@
                     </form>
                 </div>
 
-                <!-- Live Container Feed Engine -->
                 <div id="global-feed-stream" class="space-y-4"></div>
             </div>
 
-            <!-- VIEW B: VIDEOS EXCLUSIVE STREAM -->
             <div id="view-videos" class="hidden space-y-4">
                 <h2 class="text-sm font-black uppercase tracking-wider text-zinc-400 mb-2">🎬 Live Video Streams</h2>
                 <div id="video-feed-stream" class="space-y-4"></div>
             </div>
 
-            <!-- VIEW C: PRIVATE MESSAGES CHAT TAB (PAIN AI CHAT BOT) -->
             <div id="view-chat" class="hidden bg-zinc-900 border border-zinc-800 rounded-2xl flex flex-col h-[75vh] shadow-2xl overflow-hidden">
-                <div class="p-4 border-b border-zinc-800 bg-zinc-950/40 flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-full bg-red-950 border border-red-500 flex items-center justify-center font-bold text-xs text-red-500">🤖</div>
-                    <div>
-                        <h3 class="text-xs font-black uppercase tracking-wider flex items-center gap-1">Pain AI Assistant <span class="bg-red-600 text-white text-[9px] font-black w-3.5 h-3.5 flex items-center justify-center rounded-sm border border-white/20">✓</span></h3>
-                        <span class="text-[10px] text-emerald-500 font-bold block">Online Systems Active</span>
+                <div class="p-4 border-b border-zinc-800 bg-zinc-950/60 flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-full bg-red-950/40 border border-red-800/40 flex items-center justify-center text-lg shadow-inner">🤖</div>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-1.5">
+                            <h3 class="text-xs font-black uppercase tracking-wider text-zinc-100">Pain AI Assistant</h3>
+                            <span class="text-xs text-red-500" title="System Verified Bot">✓</span>
+                        </div>
+                        <span class="text-[9px] text-emerald-500 font-bold tracking-wide block uppercase animate-pulse">Online Systems Active</span>
                     </div>
                 </div>
-                <!-- Chat Window Frame -->
                 <div id="chat-messages-container" class="flex-1 p-4 overflow-y-auto space-y-3 font-medium text-sm"></div>
-                <!-- Input Tray Frame -->
                 <form onsubmit="handleSendPrivateMessage(event)" class="p-3 border-t border-zinc-800 bg-zinc-950/20 flex gap-2">
                     <input type="text" id="chat-input" required placeholder="Send a question to the system AI..." class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-red-500 transition text-zinc-100">
-                    <button type="submit" class="bg-red-600 hover:bg-red-700 px-4 rounded-xl text-xs font-bold transition">Send</button>
+                    <button type="submit" class="bg-red-600 hover:bg-red-700 px-5 rounded-xl text-xs font-bold transition shadow-lg shadow-red-600/10">Send</button>
                 </form>
             </div>
         </main>
 
-        <!-- FULL SCREEN PROFILE MODAL -->
         <div id="view-profile-modal" class="hidden fixed inset-0 bg-zinc-950 z-50 overflow-y-auto flex justify-center p-0 md:p-4">
             <div class="bg-zinc-950 md:bg-zinc-900 border-0 md:border border-zinc-800 w-full max-w-xl min-h-screen md:min-h-0 md:rounded-2xl p-5 shadow-2xl relative flex flex-col">
-                <!-- Close Button to Leave Profile Completely -->
                 <button onclick="closeProfileView()" class="absolute top-4 right-4 text-xs font-bold text-zinc-500 hover:text-zinc-200 transition border border-zinc-800 px-3 py-1.5 rounded-lg bg-zinc-900" title="Close Profile">✕ Leave Profile</button>
                 
-                <!-- Profile Header -->
                 <div class="text-center pt-8 pb-4">
-                    <div id="p-avatar" class="w-24 h-24 bg-zinc-800 border-2 border-zinc-700 text-zinc-200 rounded-full flex items-center justify-center text-4xl font-bold mx-auto mb-3 shadow-xl">?</div>
+                    <div id="p-avatar" class="w-24 h-24 bg-zinc-800 border-2 border-zinc-700 text-zinc-200 rounded-full flex items-center justify-center text-4xl font-bold mx-auto mb-3 shadow-xl overflow-hidden object-cover">?</div>
                     <h2 id="p-name" class="text-xl font-black flex items-center justify-center gap-1.5 text-zinc-100"></h2>
                     <p id="p-bio" class="text-xs text-zinc-400 mt-1 max-w-xs mx-auto italic">No profile bio description established yet.</p>
                     
-                    <!-- Stats Counter Row -->
                     <div class="flex justify-center items-center gap-8 mt-6 border-y border-zinc-800/60 py-3 max-w-sm mx-auto">
                         <div class="text-center">
                             <span id="p-stat-following" class="block text-lg font-black text-zinc-100">0</span>
@@ -163,13 +148,11 @@
                         </div>
                     </div>
 
-                    <!-- Profile Interactions / Edit Trigger -->
                     <div class="mt-4 flex justify-center gap-2">
                         <button onclick="toggleProfileEditForm()" class="text-xs font-bold bg-zinc-800 hover:bg-zinc-700 px-6 py-2 rounded-xl border border-zinc-700/60 transition">Edit Settings Profile</button>
                         <button id="p-follow-btn" onclick="triggerProfileFollowMutation()" class="hidden text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl transition">Follow Account</button>
                     </div>
 
-                    <!-- Hidden Editor Subpanel -->
                     <form id="p-edit-form" onsubmit="handleSaveProfileEdits(event)" class="hidden mt-4 p-4 border border-zinc-800 bg-zinc-950/40 rounded-xl max-w-sm mx-auto text-left space-y-3">
                         <div>
                             <label class="block text-[10px] font-bold uppercase tracking-wider text-zinc-500 mb-1">Update Name</label>
@@ -179,11 +162,14 @@
                             <label class="block text-[10px] font-bold uppercase tracking-wider text-zinc-500 mb-1">Update Status Bio Description</label>
                             <input type="text" id="edit-p-bio" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-zinc-100 focus:outline-none focus:border-red-500">
                         </div>
-                        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-xs font-bold py-2 rounded-lg transition">Save Profile Configurations</button>
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase tracking-wider text-zinc-500 mb-1">Profile Photo (Optional)</label>
+                            <input type="file" id="edit-p-avatar-file" accept="image/*" class="w-full text-xs text-zinc-400 file:mr-3 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-zinc-800 file:text-zinc-200 hover:file:bg-zinc-700 file:cursor-pointer">
+                        </div>
+                        <button type="submit" id="profile-save-btn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-xs font-bold py-2 rounded-lg transition">Save Profile Configurations</button>
                     </form>
                 </div>
 
-                <!-- Custom Grid Filter Tab -->
                 <div class="border-t border-zinc-800 mt-4 flex-1">
                     <span class="block text-[10px] font-black uppercase text-zinc-500 tracking-widest my-3">🗂️ Account Broadcast Stream Output</span>
                     <div id="profile-personal-feed" class="space-y-3"></div>
@@ -192,12 +178,12 @@
         </div>
     </div>
 
-    <!-- UI ROUTING MECHANICS & PIPELINE SCRIPTS -->
     <script>
         let isSignUpMode = true;
         let currentUserData = null;
         let activeUid = null;
         let viewedProfileUid = null;
+        let cachedUsersMap = {};
 
         function toggleAuthMode() {
             isSignUpMode = !isSignUpMode;
@@ -217,7 +203,7 @@
                 auth.createUserWithEmailAndPassword(email, password).then(credential => {
                     return db.ref('users/' + credential.user.uid).set({
                         username: name, email: email, uid: credential.user.uid,
-                        verified: false, followers: 0, following: 0, likes: 0, bio: "System member of Pain X."
+                        verified: false, followers: 0, following: 0, likes: 0, bio: "System member of Pain X.", avatarUrl: ""
                     });
                 }).catch(err => alert(err.message));
             } else {
@@ -249,25 +235,14 @@
         }
 
         function evaluateAutoVerification(userId, followerCount) {
-            if (userId === "ADMIN_ROOT_PANEL" || userId === "AI_BOT_SYSTEM") return;
+            if (userId === "ADMIN_ROOT_PANEL") return;
             if (followerCount >= 1000) {
                 db.ref('users/' + userId + '/verified').once('value', snap => {
                     if (snap.val() !== true) {
                         db.ref('users/' + userId).update({ verified: true });
-                        cascadeVerificationToPosts(userId, true);
                     }
                 });
             }
-        }
-
-        function cascadeVerificationToPosts(userId, state) {
-            db.ref('posts').once('value', snapshot => {
-                snapshot.forEach(child => {
-                    if (child.val().uid === userId) {
-                        db.ref('posts/' + child.key).update({ verified: state });
-                    }
-                });
-            });
         }
 
         function handlePostSubmit(e) {
@@ -297,8 +272,7 @@
         function finalizePostCreation(key, text, videoUrl) {
             db.ref('posts/' + key).set({
                 id: key, uid: currentUserData.uid, username: currentUserData.username,
-                verified: currentUserData.verified || false, content: text,
-                videoUrl: videoUrl, likes: 0, timestamp: firebase.database.ServerValue.TIMESTAMP
+                content: text, videoUrl: videoUrl, likes: 0, timestamp: firebase.database.ServerValue.TIMESTAMP
             }).then(() => {
                 document.getElementById('post-input').value = '';
                 document.getElementById('post-video-file').value = '';
@@ -310,7 +284,7 @@
 
         function likePost(postId, currentLikes, authorUid) {
             db.ref('posts/' + postId).update({ likes: (currentLikes || 0) + 1 });
-            if (authorUid && authorUid !== "ADMIN_ROOT_PANEL" && authorUid !== "AI_BOT_SYSTEM") {
+            if (authorUid && authorUid !== "ADMIN_ROOT_PANEL") {
                 db.ref('users/' + authorUid + '/likes').transaction(curr => (curr || 0) + 1);
             }
         }
@@ -324,6 +298,7 @@
 
             db.ref('posts/' + postId + '/comments').push({
                 username: currentUserData.username,
+                uid: currentUserData.uid,
                 content: text,
                 timestamp: firebase.database.ServerValue.TIMESTAMP
             }).then(() => {
@@ -339,7 +314,6 @@
             }
         }
 
-        // FULL DYNAMIC CHAT PROCESSING ENGINE
         function handleSendPrivateMessage(e) {
             e.preventDefault();
             const input = document.getElementById('chat-input');
@@ -355,41 +329,24 @@
         }
 
         function triggerSmartAiBotProcessing(promptText) {
-            let reply = "";
-            const query = promptText.toLowerCase();
+            const botSignatureNodeName = "Pain AI Assistant";
+            const apiEndpointUrl = `https://text.pollinations.ai/${encodeURIComponent(promptText)}?system=${encodeURIComponent("You are an authentic, friendly, and adaptive AI companion named Pain AI Assistant. You chat naturally like a peer, using casual language and clear thoughts. Keep replies straight to the point, short, and engaging.")}`;
 
-            // Strict Identification Requirement Rule Check
-            if (query.includes("who created you") || query.includes("who made you") || query.includes("your creator")) {
-                reply = "Pain created me to assist his fans.";
-                saveAiResponseNode(reply);
-            } else {
-                // Connect to a free, high-performance conversational AI engine
-                const systemPrompt = "You are Pain X AI, an authentic, adaptive, and highly intelligent AI assistant created by Pain to assist his fans. Talk like a helpful, conversational human peer—warm, direct, and witty. Keep answers concise, natural, and engaging.";
-                const encodedPrompt = encodeURIComponent(`${systemPrompt}\n\nUser: ${promptText}`);
-                
-                fetch(`https://text.pollinations.ai/${encodedPrompt}`)
-                .then(res => res.text())
-                .then(text => {
-                    reply = text || "I'm right here. What's on your mind?";
-                    saveAiResponseNode(reply);
+            fetch(apiEndpointUrl)
+                .then(response => response.text())
+                .then(aiReplyText => {
+                    db.ref('chats/' + activeUid).push({
+                        sender: botSignatureNodeName, content: aiReplyText, timestamp: firebase.database.ServerValue.TIMESTAMP
+                    });
                 })
                 .catch(() => {
-                    reply = "My system link flickered for a brief second, but I'm back. What's on your mind?";
-                    saveAiResponseNode(reply);
+                    db.ref('chats/' + activeUid).push({
+                        sender: botSignatureNodeName, content: "System connection stuttered slightly. Give it another try!", timestamp: firebase.database.ServerValue.TIMESTAMP
+                    });
                 });
-            }
         }
 
-        function saveAiResponseNode(msgText) {
-            db.ref('chats/' + activeUid).push({
-                sender: "🤖 PAIN-X AI BOT", content: msgText, timestamp: firebase.database.ServerValue.TIMESTAMP
-            });
-            if (document.getElementById('view-chat').classList.contains('hidden')) {
-                document.getElementById('chat-alert').classList.remove('hidden');
-            }
-        }
-
-        // PROFILE SYSTEM LOGIC
+        // PROFILE PICTURE SYSTEM LAYOUT LOGIC
         function openProfileView(targetUid = null) {
             viewedProfileUid = targetUid || activeUid;
             document.getElementById('view-profile-modal').classList.remove('hidden');
@@ -404,7 +361,15 @@
 
                 const followers = data.followers || 0;
                 document.getElementById('p-name').innerHTML = data.username + renderDynamicVerificationCheckmark(data.uid, data.verified);
-                document.getElementById('p-avatar').innerText = data.username.charAt(0).toUpperCase();
+                
+                const avatarContainer = document.getElementById('p-avatar');
+                if (data.avatarUrl) {
+                    avatarContainer.innerHTML = `<img src="${data.avatarUrl}" class="w-full h-full object-cover">`;
+                } else {
+                    avatarContainer.innerText = data.username.charAt(0).toUpperCase();
+                    avatarContainer.innerHTML = data.username.charAt(0).toUpperCase();
+                }
+
                 document.getElementById('p-bio').innerText = data.bio || "No description set.";
                 document.getElementById('p-stat-followers').innerText = followers;
                 document.getElementById('p-stat-following').innerText = data.following || 0;
@@ -437,6 +402,7 @@
             if (currentUserData) {
                 document.getElementById('edit-p-username').value = currentUserData.username;
                 document.getElementById('edit-p-bio').value = currentUserData.bio || '';
+                document.getElementById('edit-p-avatar-file').value = '';
             }
         }
 
@@ -444,11 +410,32 @@
             e.preventDefault();
             const newName = document.getElementById('edit-p-username').value.trim();
             const newBio = document.getElementById('edit-p-bio').value.trim();
+            const avatarFile = document.getElementById('edit-p-avatar-file').files[0];
             if (!newName) return;
 
-            db.ref('users/' + activeUid).update({ username: newName, bio: newBio }).then(() => {
-                document.getElementById('p-edit-form').classList.add('hidden');
-            });
+            const saveBtn = document.getElementById('profile-save-btn');
+            saveBtn.innerText = "Saving Adjustments...";
+            saveBtn.disabled = true;
+
+            const completeUpdate = (imgUrl = null) => {
+                const updatePayload = { username: newName, bio: newBio };
+                if (imgUrl) updatePayload.avatarUrl = imgUrl;
+
+                db.ref('users/' + activeUid).update(updatePayload).then(() => {
+                    saveBtn.innerText = "Save Profile Configurations";
+                    saveBtn.disabled = false;
+                    document.getElementById('p-edit-form').classList.add('hidden');
+                });
+            };
+
+            if (avatarFile) {
+                const storageRef = storage.ref('avatars/' + activeUid + '_' + avatarFile.name);
+                storageRef.put(avatarFile).then(snapshot => snapshot.ref.getDownloadURL()).then(url => {
+                    completeUpdate(url);
+                }).catch(err => alert(err.message));
+            } else {
+                completeUpdate();
+            }
         }
 
         function triggerProfileFollowMutation() {
@@ -458,13 +445,25 @@
         }
 
         function renderDynamicVerificationCheckmark(userId, verifiedState) {
-            if (userId === "ADMIN_ROOT_PANEL" || userId === "AI_BOT_SYSTEM" || userId === "327168157848" || userId === "painxxlord") {
+            if (userId === "ADMIN_ROOT_PANEL" || userId === "327168157848" || userId === "painxxlord") {
                 return ` <span class="bg-red-600 text-white text-[10px] font-black w-4 h-4 inline-flex items-center justify-center rounded-full border border-white/20 shadow" title="Root Authority">✓</span>`;
             }
             return verifiedState ? ` <span class="text-blue-500 font-bold text-sm" title="Automated Verified Member">✓</span>` : '';
         }
 
-        // CENTRAL STATE OBSERVER
+        function renderAvatarHtml(uid, initials, sizeClass = "w-8 h-8 text-xs") {
+            const user = cachedUsersMap[uid];
+            if (user && user.avatarUrl) {
+                return `<div class="${sizeClass} rounded-full bg-zinc-800 border border-zinc-700 overflow-hidden"><img src="${user.avatarUrl}" class="w-full h-full object-cover"></div>`;
+            }
+            return `<div class="${sizeClass} rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center font-bold text-zinc-300">${initials}</div>`;
+        }
+
+        // SYNC MASTER OBSERVER CAPTURING PROFILES AND TIMELINE POSTS
+        db.ref('users').on('value', snapshot => {
+            cachedUsersMap = snapshot.val() || {};
+        });
+
         auth.onAuthStateChanged(user => {
             if (user) {
                 activeUid = user.uid;
@@ -498,24 +497,39 @@
             }
         });
 
-        // FEED RENDERING PIPELINE
-        db.ref('posts').orderToLast(50).on('value', snapshot => {
+        // RE-SORTED SYSTEM RENDERING STREAM ENGINE
+        db.ref('posts').on('value', snapshot => {
             const feed = document.getElementById('global-feed-stream');
             const vFeed = document.getElementById('video-feed-stream');
             feed.innerHTML = ''; vFeed.innerHTML = '';
 
             const posts = [];
-            snapshot.forEach(c => { posts.unshift(c.val()); });
+            snapshot.forEach(c => { posts.push(c.val()); });
+
+            // Pure chronological sort parameters
+            posts.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
 
             posts.forEach(p => {
                 const initials = p.username ? p.username.charAt(0).toUpperCase() : '?';
-                const checkmark = renderDynamicVerificationCheckmark(p.uid, p.verified);
+                const userObj = cachedUsersMap[p.uid] || {};
+                const checkmark = renderDynamicVerificationCheckmark(p.uid, userObj.verified);
+                
+                const avatarHtml = renderAvatarHtml(p.uid, initials, "w-8 h-8 text-xs");
                 const mediaContent = p.videoUrl ? `<div class="rounded-xl overflow-hidden bg-black border border-zinc-800/80 mt-2"><video src="${p.videoUrl}" controls class="w-full h-auto max-h-96 object-contain"></video></div>` : '';
 
                 let commentsHtml = '';
                 if (p.comments) {
                     Object.values(p.comments).forEach(cm => {
-                        commentsHtml += `<div class="bg-zinc-950/60 p-2 rounded-lg text-xs border border-zinc-800/40"><span class="font-bold text-zinc-400 block">${cm.username}</span><p class="text-zinc-300">${cm.content}</p></div>`;
+                        const commentInitials = cm.username ? cm.username.charAt(0).toUpperCase() : '?';
+                        const commentAvatar = renderAvatarHtml(cm.uid, commentInitials, "w-5 h-5 text-[8px]");
+                        commentsHtml += `
+                            <div class="bg-zinc-950/60 p-2 rounded-lg text-xs border border-zinc-800/40 flex gap-2 items-start">
+                                ${commentAvatar}
+                                <div class="flex-1">
+                                    <span class="font-bold text-zinc-400 block">${cm.username}</span>
+                                    <p class="text-zinc-300">${cm.content}</p>
+                                </div>
+                            </div>`;
                     });
                 }
 
@@ -523,8 +537,8 @@
                     <div class="bg-zinc-900 border border-zinc-800/80 rounded-2xl p-4 space-y-3 shadow-md">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-2.5 cursor-pointer" onclick="openProfileView('${p.uid}')">
-                                <div class="w-8 h-8 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-xs font-bold text-zinc-300">${initials}</div>
-                                <span class="text-sm font-black text-zinc-200 flex items-center">${p.username}${checkmark}</span>
+                                ${avatarHtml}
+                                <span class="text-sm font-black text-zinc-200 flex items-center">${userObj.username || p.username}${checkmark}</span>
                             </div>
                         </div>
                         <p class="text-sm text-zinc-300 font-medium break-words leading-relaxed">${p.content}</p>
