@@ -72,7 +72,7 @@
                     <button onclick="switchTab('feed')" class="hover:text-zinc-100 transition text-lg" title="Global Stream Feed">🏠</button>
                     <button onclick="switchTab('videos')" class="hover:text-zinc-100 transition text-lg" title="Watch Videos Only">🎬</button>
                     <button onclick="switchTab('chat')" class="hover:text-zinc-100 transition text-lg relative" title="Pain AI Chat Room">💬<span id="chat-alert" class="hidden absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span></button>
-                    <button onclick="openProfileView()" class="hover:text-zinc-100 transition text-lg" title="My TikTok Style Profile">👤</button>
+                    <button onclick="openProfileView()" class="hover:text-zinc-100 transition text-lg" title="My Profile">👤</button>
                     <button onclick="toggleSettingsMenu()" class="hover:text-zinc-100 transition text-lg" title="System Settings">⚙️</button>
                 </div>
             </div>
@@ -135,19 +135,19 @@
             </div>
         </main>
 
-        <!-- TIKTOK STYLE FULL SCREEN DYNAMIC PROFILE VIEW MODAL -->
-        <div id="view-profile-modal" class="hidden fixed inset-0 bg-zinc-950 z-50 overflow-y-auto flex justify-center p-0 md:p-4 animate-fade-in">
+        <!-- FULL SCREEN PROFILE MODAL -->
+        <div id="view-profile-modal" class="hidden fixed inset-0 bg-zinc-950 z-50 overflow-y-auto flex justify-center p-0 md:p-4">
             <div class="bg-zinc-950 md:bg-zinc-900 border-0 md:border border-zinc-800 w-full max-w-xl min-h-screen md:min-h-0 md:rounded-2xl p-5 shadow-2xl relative flex flex-col">
                 <!-- Close Button to Leave Profile Completely -->
-                <button onclick="closeProfileView()" class="absolute top-4 right-4 text-xl text-zinc-500 hover:text-zinc-200 transition font-bold" title="Close and Return to Feed">✕ Leave Profile</button>
+                <button onclick="closeProfileView()" class="absolute top-4 right-4 text-xs font-bold text-zinc-500 hover:text-zinc-200 transition border border-zinc-800 px-3 py-1.5 rounded-lg bg-zinc-900" title="Close Profile">✕ Leave Profile</button>
                 
-                <!-- TikTok Profile Header Matrix -->
+                <!-- Profile Header -->
                 <div class="text-center pt-8 pb-4">
                     <div id="p-avatar" class="w-24 h-24 bg-zinc-800 border-2 border-zinc-700 text-zinc-200 rounded-full flex items-center justify-center text-4xl font-bold mx-auto mb-3 shadow-xl">?</div>
                     <h2 id="p-name" class="text-xl font-black flex items-center justify-center gap-1.5 text-zinc-100"></h2>
                     <p id="p-bio" class="text-xs text-zinc-400 mt-1 max-w-xs mx-auto italic">No profile bio description established yet.</p>
                     
-                    <!-- The Big Three TikTok Stats Counters Row -->
+                    <!-- Stats Counter Row -->
                     <div class="flex justify-center items-center gap-8 mt-6 border-y border-zinc-800/60 py-3 max-w-sm mx-auto">
                         <div class="text-center">
                             <span id="p-stat-following" class="block text-lg font-black text-zinc-100">0</span>
@@ -169,7 +169,7 @@
                         <button id="p-follow-btn" onclick="triggerProfileFollowMutation()" class="hidden text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl transition">Follow Account</button>
                     </div>
 
-                    <!-- Hidden Editor Subpanel Dropdown -->
+                    <!-- Hidden Editor Subpanel -->
                     <form id="p-edit-form" onsubmit="handleSaveProfileEdits(event)" class="hidden mt-4 p-4 border border-zinc-800 bg-zinc-950/40 rounded-xl max-w-sm mx-auto text-left space-y-3">
                         <div>
                             <label class="block text-[10px] font-bold uppercase tracking-wider text-zinc-500 mb-1">Update Name</label>
@@ -248,11 +248,8 @@
             document.getElementById('video-file-name').innerText = fileName;
         }
 
-        // AUTO-VERIFICATION EVALUATOR FUNCTION
         function evaluateAutoVerification(userId, followerCount) {
             if (userId === "ADMIN_ROOT_PANEL" || userId === "AI_BOT_SYSTEM") return;
-            
-            // Auto check if metric cross 1000 follower line threshold
             if (followerCount >= 1000) {
                 db.ref('users/' + userId + '/verified').once('value', snap => {
                     if (snap.val() !== true) {
@@ -286,7 +283,7 @@
             if (videoFile) {
                 const storageRef = storage.ref('videos/' + postKey + '_' + videoFile.name);
                 const uploadTask = storageRef.put(videoFile);
-                document.getElementById('post-btn').innerText = "Uploading Media File...";
+                document.getElementById('post-btn').innerText = "Uploading Media...";
                 document.getElementById('post-btn').disabled = true;
 
                 uploadTask.then(snapshot => snapshot.ref.getDownloadURL()).then(downloadUrl => {
@@ -338,23 +335,22 @@
             if (navigator.share) {
                 navigator.share({ title: 'Pain X Broadcast', text: textContent, url: window.location.href });
             } else {
-                alert("Copied post content meta linkage pointer pipeline address successfully inside workspace buffer!");
+                alert("Copied post content pipeline link to clipboard!");
             }
         }
 
-        // INTELLIGENT ROUTED CHAT CONSOLE LOGIC
+        // FULL DYNAMIC CHAT PROCESSING ENGINE
         function handleSendPrivateMessage(e) {
             e.preventDefault();
             const input = document.getElementById('chat-input');
             const text = input.value.trim();
             if (!text) return;
 
-            // Render message instantly locally to layout
             db.ref('chats/' + activeUid).push({
                 sender: currentUserData.username, content: text, timestamp: firebase.database.ServerValue.TIMESTAMP
             }).then(() => {
                 input.value = '';
-                setTimeout(() => { triggerSmartAiBotProcessing(text); }, 1000);
+                setTimeout(() => { triggerSmartAiBotProcessing(text); }, 400);
             });
         }
 
@@ -362,27 +358,25 @@
             let reply = "";
             const query = promptText.toLowerCase();
 
-            // Creator Strict Hardcoded Rules Configuration Check
+            // Strict Identification Requirement Rule Check
             if (query.includes("who created you") || query.includes("who made you") || query.includes("your creator")) {
                 reply = "Pain created me to assist his fans.";
                 saveAiResponseNode(reply);
             } else {
-                // Connect to a free smart public text endpoint safely
-                fetch(`https://api.microlink.io?url=https://wikipedia.org/wiki/Special:Random`)
-                    .then(() => {
-                        // Intelligent fallback simulation with dynamic responsive text arrays
-                        const options = [
-                            "System mainframe analysis: Call of Duty and Free Fire accounts data pipelines are clear. What information do you seek regarding account operations?",
-                            "Digital visual processing complete. The Akatsuki organization matrix values remain fully secure inside the Pain X mainframe infrastructure.",
-                            "Motion video processing requires consistent timeline stabilization rendering configurations. Try checking local tracking nodes.",
-                            "Pain X system node confirmed functional. Standing by for specific network execution queries."
-                        ];
-                        reply = options[Math.floor(Math.random() * options.length)];
-                        saveAiResponseNode(reply);
-                    }).catch(() => {
-                        reply = "System buffer transmission frame timeout. Pain created me to assist his fans.";
-                        saveAiResponseNode(reply);
-                    });
+                // Connect to a free, high-performance conversational AI engine
+                const systemPrompt = "You are Pain X AI, an authentic, adaptive, and highly intelligent AI assistant created by Pain to assist his fans. Talk like a helpful, conversational human peer—warm, direct, and witty. Keep answers concise, natural, and engaging.";
+                const encodedPrompt = encodeURIComponent(`${systemPrompt}\n\nUser: ${promptText}`);
+                
+                fetch(`https://text.pollinations.ai/${encodedPrompt}`)
+                .then(res => res.text())
+                .then(text => {
+                    reply = text || "I'm right here. What's on your mind?";
+                    saveAiResponseNode(reply);
+                })
+                .catch(() => {
+                    reply = "My system link flickered for a brief second, but I'm back. What's on your mind?";
+                    saveAiResponseNode(reply);
+                });
             }
         }
 
@@ -390,10 +384,12 @@
             db.ref('chats/' + activeUid).push({
                 sender: "🤖 PAIN-X AI BOT", content: msgText, timestamp: firebase.database.ServerValue.TIMESTAMP
             });
-            document.getElementById('chat-alert').classList.remove('hidden');
+            if (document.getElementById('view-chat').classList.contains('hidden')) {
+                document.getElementById('chat-alert').classList.remove('hidden');
+            }
         }
 
-        // TIKTOK PROFILE VIEW ARCHITECTURE LAYOUT PIPELINE
+        // PROFILE SYSTEM LOGIC
         function openProfileView(targetUid = null) {
             viewedProfileUid = targetUid || activeUid;
             document.getElementById('view-profile-modal').classList.remove('hidden');
@@ -402,7 +398,6 @@
             const isOwnProfile = viewedProfileUid === activeUid;
             document.getElementById('p-follow-btn').classList.toggle('hidden', isOwnProfile);
 
-            // Establish real-time tracking listeners for viewed profile nodes
             db.ref('users/' + viewedProfileUid).on('value', snapshot => {
                 const data = snapshot.val();
                 if (!data) return;
@@ -418,7 +413,6 @@
                 evaluateAutoVerification(viewedProfileUid, followers);
             });
 
-            // Map personal feed posts sub-stream inside profile layout interface
             db.ref('posts').on('value', snap => {
                 const container = document.getElementById('profile-personal-feed');
                 container.innerHTML = '';
@@ -465,13 +459,12 @@
 
         function renderDynamicVerificationCheckmark(userId, verifiedState) {
             if (userId === "ADMIN_ROOT_PANEL" || userId === "AI_BOT_SYSTEM" || userId === "327168157848" || userId === "painxxlord") {
-                // Custom requested Red badge with white checkmark logic for Pain and AI
-                return ` <span class="bg-red-600 text-white text-[10px] font-black w-4 h-4 inline-flex items-center justify-center rounded-full border border-white/20 shadow" title="Root Authority Developer">✓</span>`;
+                return ` <span class="bg-red-600 text-white text-[10px] font-black w-4 h-4 inline-flex items-center justify-center rounded-full border border-white/20 shadow" title="Root Authority">✓</span>`;
             }
-            return verifiedState ? ` <span class="text-blue-500 font-bold text-sm" title="Automated Verified Member Over 1000 Threshold Checked">✓</span>` : '';
+            return verifiedState ? ` <span class="text-blue-500 font-bold text-sm" title="Automated Verified Member">✓</span>` : '';
         }
 
-        // MASTER CENTRAL OVERSIGHT OBSERVER PIPELINES
+        // CENTRAL STATE OBSERVER
         auth.onAuthStateChanged(user => {
             if (user) {
                 activeUid = user.uid;
@@ -482,7 +475,6 @@
                     currentUserData = snapshot.val();
                 });
 
-                // Establish continuous chat ingestion channel layout loop
                 db.ref('chats/' + user.uid).on('value', snap => {
                     const box = document.getElementById('chat-messages-container');
                     box.innerHTML = '';
@@ -506,7 +498,7 @@
             }
         });
 
-        // LIVE CORE STREAMS REACTION RENDERING LAYOUT ENGINE
+        // FEED RENDERING PIPELINE
         db.ref('posts').orderToLast(50).on('value', snapshot => {
             const feed = document.getElementById('global-feed-stream');
             const vFeed = document.getElementById('video-feed-stream');
@@ -520,7 +512,6 @@
                 const checkmark = renderDynamicVerificationCheckmark(p.uid, p.verified);
                 const mediaContent = p.videoUrl ? `<div class="rounded-xl overflow-hidden bg-black border border-zinc-800/80 mt-2"><video src="${p.videoUrl}" controls class="w-full h-auto max-h-96 object-contain"></video></div>` : '';
 
-                // Build Facebook Style Layout Comments Area Thread lists box
                 let commentsHtml = '';
                 if (p.comments) {
                     Object.values(p.comments).forEach(cm => {
@@ -539,14 +530,12 @@
                         <p class="text-sm text-zinc-300 font-medium break-words leading-relaxed">${p.content}</p>
                         ${mediaContent}
                         
-                        <!-- Facebook Style Interactive Actions Row Frame -->
                         <div class="flex items-center justify-around border-y border-zinc-800/50 py-2 mt-2 text-zinc-400 text-xs font-bold">
                             <button onclick="likePost('${p.id}', ${p.likes || 0}, '${p.uid}')" class="hover:text-red-500 transition flex items-center gap-1">❤️ Like (${p.likes || 0})</button>
                             <button onclick="document.getElementById('comments-box-${p.id}').classList.toggle('hidden')" class="hover:text-zinc-200 transition flex items-center gap-1">💬 Comment</button>
                             <button onclick="triggerShareAction('${p.id}', '${p.content}')" class="hover:text-zinc-200 transition flex items-center gap-1">➡️ Share</button>
                         </div>
 
-                        <!-- Secondary Thread Comments Box Hidden Tray Layout -->
                         <div id="comments-box-${p.id}" class="hidden pt-3 space-y-2 border-t border-zinc-800/40">
                             <div class="space-y-1.5">${commentsHtml}</div>
                             <form onsubmit="handleSendComment(event, '${p.id}')" class="flex gap-2 pt-2">
@@ -556,12 +545,10 @@
                         </div>
                     </div>`;
 
-                // Render into general timeline stream
                 const wrapperFeedCard = document.createElement('div');
                 wrapperFeedCard.innerHTML = postCardHtml;
                 feed.appendChild(wrapperFeedCard);
 
-                // If post contains video asset upload, separate copy explicitly inside Videos Tab view
                 if (p.videoUrl) {
                     const wrapperVideoCard = document.createElement('div');
                     wrapperVideoCard.innerHTML = postCardHtml;
